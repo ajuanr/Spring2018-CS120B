@@ -1,4 +1,5 @@
 #include <avr/interrupt.h>
+#include "scheduler.h"
 
 volatile unsigned char timerFlag = 0; // TimerISR sets to zero. Programer sets to 0;
 
@@ -29,9 +30,9 @@ void timerOff() {
 	TCCR1B = 0x00;
 }
 
-void timerISR() {
-	timerFlag = 1;
-}
+//void timerISR() {
+	//timerFlag = 1;
+//}
 
 ISR(TIMER1_COMPA_vect) {
 	// CPU automatically calls TCNT1 == OCR1 (every 1 ms per timerOn() settings

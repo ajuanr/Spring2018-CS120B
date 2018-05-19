@@ -12,6 +12,8 @@ Byte LCDpos;	// want to display player on second row of LCD
 ConstByte lvlWidth = 32;
 ConstByte LCDwidth = 16;
 
+const unsigned short POS_PERIOD = 350; // about 30 frames per second
+
 enum POS_STATES {SM_POS_START, SM_POS_INIT, SM_POS_WAIT, SM_POS};
 
 State posTckFct(State state) {
@@ -79,7 +81,7 @@ enum LCD_JUMP_STATES {SM_JUMP_START, SM_JUMP_INIT, SM_JUMP_ON_GROUND, SM_JUMP_IN
 
 
 State jumpTckFct(State state) {
-	ConstByte jumpTicks = 20; // if period is 50 ms
+	ConstByte jumpTicks = 1000/POS_PERIOD; // stay in air about 1 second
 	static Byte ticks;
 	switch (state) {
 		case SM_JUMP_START:
