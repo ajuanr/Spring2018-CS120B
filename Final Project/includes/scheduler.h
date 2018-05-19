@@ -1,7 +1,7 @@
 #ifndef scheduler_h
 #define scheduler_h
 
-typedef int State;
+#include "common.h"
 
 typedef struct Task {
     State state;

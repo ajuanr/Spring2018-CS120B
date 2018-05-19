@@ -86,7 +86,7 @@ void LCD_WriteData(unsigned char Data) {
       delay_ms(1);
 }
 
-void customChar(unsigned char pos, unsigned char *data) {
+void LCD_customChar(unsigned char pos, unsigned char *data) {
 	LCD_WriteCommand(0x40 + pos * 8);
 	for (int i = 0; i != 8; ++i) {
 		LCD_WriteData(data[i]);

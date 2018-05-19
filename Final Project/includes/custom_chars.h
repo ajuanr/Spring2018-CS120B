@@ -2,7 +2,9 @@
 #ifndef _custom_chars_h_
 #define _custom_chars_h_
 
-unsigned char dino[8] = {
+#include "common.h"
+
+Byte dinoRight1[8] = {
 	0b01111,
 	0b01011,
 	0b01111,
@@ -13,7 +15,40 @@ unsigned char dino[8] = {
 	0b01010
 };
 
-unsigned char cactus[8] = {
+Byte dinoRight2[8] = {
+	0b01111,
+	0b01011,
+	0b01111,
+	0b01100,
+	0b01111,
+	0b11100,
+	0b01110,
+	0b01001
+};
+
+Byte dinoLeft1[8] = {
+	0b11110,
+	0b11010,
+	0b11110,
+	0b11110,
+	0b00110,
+	0b11111,
+	0b01110,
+	0b01010
+};
+
+Byte dinoLeft2[8] = {
+	0b11110,
+	0b11010,
+	0b11110,
+	0b11110,
+	0b00110,
+	0b11111,
+	0b01110,
+	0b10010
+};
+
+Byte cactus[8] = {
 	0b00100,
 	0b00101,
 	0b00101,
@@ -24,7 +59,7 @@ unsigned char cactus[8] = {
 	0b00100
 };
 
-unsigned char fireball[8] = {
+Byte fireball[8] = {
 	0b00000,
 	0b00000,
 	0b00000,
