@@ -60,13 +60,22 @@ State posTckFct(State state) {
 				LCDpos += LCDwidth;
 			}
 		}
+		else if (jumpState == IN_AIR) {
+			if (dir == MOVE_RIGHT && playerPos < lvlWidth) { // MIGHT HAVE OFF BY ONE ERROR
+				++LCDpos;
+			}
+			else if (dir == MOVE_LEFT && playerPos > 1) {
+				--LCDpos;
+			}
+			//LCDpos = playerPos % LCDwidth;
+		}
 
 		break;
 	}											// end actions
 	return state;
 }
 
-enum JUMPING_STATES {SM_JUMP_START, SM_JUMP_INIT, SM_JUMP_ON_GROUND, SM_JUMP_IN_AIR};
+enum LCD_JUMP_STATES {SM_JUMP_START, SM_JUMP_INIT, SM_JUMP_ON_GROUND, SM_JUMP_IN_AIR};
 
 
 State jumpTckFct(State state) {
