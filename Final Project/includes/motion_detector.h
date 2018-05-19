@@ -2,6 +2,7 @@
 #define _motion_detector_h_
 
 #include "common.h"
+#include "io.h"
 
 #define motionDetected (~PINA & 0x08) // use pin 3 for motion detector
 

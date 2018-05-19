@@ -16,7 +16,7 @@ void ADC_init() {
 // Neutral should be in middle 1008/2 = 504
 const unsigned short neutral = 504;	// this should be the default position of the joystick,
 									// if it's not moved from the neutral positions upon startup
-const unsigned short tolerance = 100; // allow some wiggle room with the neutral position (10%)
+const unsigned short tolerance = 125; // allow some wiggle room with the neutral position (10%)
 
 const unsigned long INPUT_PERIOD = 50; 
 

@@ -71,4 +71,11 @@ Byte fireball[8] = {
 	0b00000
 };
 
+// set addresses for custom characters
+ConstByte dinoRight1Addr = 0;
+ConstByte dinoRight2Addr = 1;
+ConstByte dinoLeft1Addr = 2;
+ConstByte dinoLeft2Addr = 3;
+
+
 #endif
