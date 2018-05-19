@@ -1,6 +1,8 @@
 #ifndef _playerActions_h_
 #define _playerActions_h_
 
+#include "common.h"
+
 #define jump (~PINA & 0x02)
 #define attack (~PINA & 0x04)
 
@@ -11,7 +13,7 @@ void ADC_init() {
 
 // Based on testing with a 103 pot and an LCD screen
 // Max value reached was 1008
-// Neutral should be in middle 1008/2 = 128 (rounding up)
+// Neutral should be in middle 1008/2 = 504
 const unsigned short neutral = 504;	// this should be the default position of the joystick,
 									// if it's not moved from the neutral positions upon startup
 const unsigned char tolerance = 100; // allow some wiggle room with the neutral position (10%)
