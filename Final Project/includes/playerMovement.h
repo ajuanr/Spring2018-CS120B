@@ -10,12 +10,11 @@
 Byte playerPos; // add 16 to get actually position on row 2 of LCD
 Byte LCDpos;	// want to display player on second row of LCD
 ConstByte lvlWidth = 32;
+ConstByte LCDwidth = 16;
 
 enum POS_STATES {SM_POS_START, SM_POS_INIT, SM_POS_WAIT, SM_POS};
 
 State posTckFct(State state) {
-	ConstByte LCDwidth = 16;
-	
 	static Byte dir;
 	switch (state) {						// start transitions
 		case SM_POS_START:
@@ -30,7 +29,6 @@ State posTckFct(State state) {
 		case SM_POS_WAIT:
 		if (moveDirection != MOVE_STOP) { // player is moving
 			state = SM_POS;
-			//dir = (moveDirection == MOVE_RIGHT) ? MOVE_RIGHT : MOVE_LEFT;
 		}
 		break;
 		case SM_POS:
@@ -65,6 +63,43 @@ State posTckFct(State state) {
 
 		break;
 	}											// end actions
+	return state;
+}
+
+enum JUMPING_STATES {SM_JUMP_START, SM_JUMP_INIT, SM_JUMP_ON_GROUND, SM_JUMP_IN_AIR};
+
+
+State jumpTckFct(State state) {
+	ConstByte jumpTicks = 20; // if period is 50 ms
+	static Byte ticks;
+	switch (state) {
+		case SM_JUMP_START:
+			state = SM_JUMP_INIT;
+			break;
+		case SM_JUMP_INIT:
+			state = SM_JUMP_ON_GROUND;
+			jumpState = ON_GROUND;
+			ticks = 0;
+			break;
+		case SM_JUMP_ON_GROUND:
+			if (jumpState == IN_AIR) {
+				state = SM_JUMP_IN_AIR;
+				LCDpos -= LCDwidth;
+
+				ticks = 0;
+			}
+			break;
+		case SM_JUMP_IN_AIR:
+			if (ticks >= jumpTicks) {
+				state = SM_JUMP_ON_GROUND;
+				jumpState = ON_GROUND;
+				LCDpos += LCDwidth;
+			}
+			++ticks;
+			break;
+		default:
+			state = SM_POS_START;
+	}											// end transitions
 	return state;
 }
 
