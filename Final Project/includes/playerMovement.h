@@ -52,7 +52,7 @@ State posTckFct(State state) {
 		if (dir == MOVE_RIGHT && playerPos < lvlWidth) { // MIGHT HAVE OFF BY ONE ERROR
 			++playerPos;
 		}
-		else if (dir == MOVE_LEFT && playerPos > 1) {
+		else if (dir == MOVE_LEFT && playerPos > 0) {
 			--playerPos;
 		}
 		if (jumpState == ON_GROUND) {	// only force LCD position to second row
