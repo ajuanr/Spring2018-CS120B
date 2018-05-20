@@ -52,8 +52,8 @@ State LCDtckFct(State state) {
 		case SM_LCD_START: break;
 		case SM_LCD_INIT: break;
 		case SM_LCD_BACKGROUND:
-			LCD_Cursor(15);
-			LCD_WriteData(playerPos + '0');
+			LCD_Cursor(15);						// for testing
+			LCD_WriteData(jumpState + '0');		// for testing
 			// set background first
 			writeMsg(gameScene, playerPos, playerPos + sceneWidth);
 			break;

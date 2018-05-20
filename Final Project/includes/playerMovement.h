@@ -8,7 +8,7 @@
 #include "common.h"
 
 Byte playerPos; // add 16 to get actually position on row 2 of LCD
-Byte LCDpos;	// want to display player on second row of LCD
+
 ConstByte lvlWidth = 32;
 ConstByte LCDwidth = 16;
 
@@ -25,7 +25,6 @@ State posTckFct(State state) {
 		case SM_POS_INIT:
 		state = SM_POS_WAIT;
 		playerPos = 1;
-		LCDpos = playerPos + LCDwidth;
 		dir = MOVE_RIGHT; // pos = right / 0 = left
 		break;
 		case SM_POS_WAIT:
@@ -55,23 +54,6 @@ State posTckFct(State state) {
 		else if (dir == MOVE_LEFT && playerPos > 0) {
 			--playerPos;
 		}
-		if (jumpState == ON_GROUND) {	// only force LCD position to second row
-										// when player is not jumping
-			LCDpos = (playerPos % LCDwidth) + LCDwidth;
-			if (LCDpos <= LCDwidth) {	// handle bug when right edge of screen is reached
-				LCDpos += LCDwidth;
-			}
-		}
-		else if (jumpState == IN_AIR) {
-			if (dir == MOVE_RIGHT && playerPos < lvlWidth) { // MIGHT HAVE OFF BY ONE ERROR
-				++LCDpos;
-			}
-			else if (dir == MOVE_LEFT && playerPos > 1) {
-				--LCDpos;
-			}
-			//LCDpos = playerPos % LCDwidth;
-		}
-
 		break;
 	}											// end actions
 	return state;
@@ -95,8 +77,6 @@ State jumpTckFct(State state) {
 		case SM_JUMP_ON_GROUND:
 			if (jumpState == IN_AIR) {
 				state = SM_JUMP_IN_AIR;
-				LCDpos -= LCDwidth;
-
 				ticks = 0;
 			}
 			break;
@@ -104,7 +84,6 @@ State jumpTckFct(State state) {
 			if (ticks >= jumpTicks) {
 				state = SM_JUMP_ON_GROUND;
 				jumpState = ON_GROUND;
-				LCDpos += LCDwidth;
 			}
 			++ticks;
 			break;
