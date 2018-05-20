@@ -61,7 +61,6 @@ State posTckFct(State state) {
 
 enum LCD_JUMP_STATES {SM_JUMP_START, SM_JUMP_INIT, SM_JUMP_ON_GROUND, SM_JUMP_IN_AIR};
 
-
 State jumpTckFct(State state) {
 	ConstByte jumpTicks = 1000/POS_PERIOD; // stay in air about 1 second
 	static Byte ticks;
@@ -71,11 +70,11 @@ State jumpTckFct(State state) {
 			break;
 		case SM_JUMP_INIT:
 			state = SM_JUMP_ON_GROUND;
-			jumpState = ON_GROUND;
+			isJumping = false;
 			ticks = 0;
 			break;
 		case SM_JUMP_ON_GROUND:
-			if (jumpState == IN_AIR) {
+			if (isJumping) {
 				state = SM_JUMP_IN_AIR;
 				ticks = 0;
 			}
@@ -83,7 +82,7 @@ State jumpTckFct(State state) {
 		case SM_JUMP_IN_AIR:
 			if (ticks >= jumpTicks) {
 				state = SM_JUMP_ON_GROUND;
-				jumpState = ON_GROUND;
+				isJumping = false;
 			}
 			++ticks;
 			break;

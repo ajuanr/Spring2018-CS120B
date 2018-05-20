@@ -21,6 +21,7 @@ ConstByte gameScene[gameSceneSize] = {CACTUS, CACTUS, GROUND, GROUND, GROUND, GR
 
 
 void writeMsg(ConstByte*, ConstByte, ConstByte);
+void LCD_ClearRow(ConstByte);
 
 enum LCD_DRIVER_STATES {SM_LCD_START, SM_LCD_INIT, SM_LCD_BACKGROUND, SM_LCD_PLAYER, SM_LCD_WAIT};
 						
@@ -53,16 +54,22 @@ State LCDtckFct(State state) {
 		case SM_LCD_INIT: break;
 		case SM_LCD_BACKGROUND:
 			LCD_Cursor(15);						// for testing
-			LCD_WriteData(jumpState + '0');		// for testing
+			LCD_WriteData(isJumping + '0');		// for testing
 			// set background first
 			writeMsg(gameScene, playerPos, playerPos + sceneWidth);
 			break;
 		case SM_LCD_PLAYER:
-			LCD_Cursor(20);
-			if (jumpState == IN_AIR) {
-				LCD_Cursor(3);
+			if (isJumping) {
+				LCD_Cursor(20);
+				LCD_WriteData(GROUND);
+				LCD_Cursor(4);
 			}
-			LCD_WriteData(DINORight1);
+			else {
+				LCD_Cursor(4);
+				LCD_WriteData(' ');
+				LCD_Cursor(20);
+			}
+			playerPos % 2 == 0 ? LCD_WriteData(DINORight1) : LCD_WriteData(DINORight2);
 			break;
 	}									// end actions
 	return state;

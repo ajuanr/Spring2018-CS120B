@@ -38,7 +38,7 @@ State directionTckFct(State state) {
 		break;
 		case SM_DIRECT_WAIT:
 		moveDirection = MOVE_STOP;  // assume joystick is in neutral position
-		// adjust if neccessary
+		// adjust if necessary
 		if (current < (neutral - tolerance) ) {
 			moveDirection = MOVE_LEFT;
 		}
@@ -61,11 +61,11 @@ State directionTckFct(State state) {
 }
 
 /* State machine to make player jump or attack
- * jumpState and attackState are a global variables that will be used to update the player/attack position on the display
+ * isJumping and attackState are a global variables that will be used to update the player/attack position on the display
  * they are reset back to default values after player either lands, or is ready to attack again
  * the resets are handled in another state machine
  */
-enum JUMP_STATE {ON_GROUND, IN_AIR} jumpState; // set to IN_AIR when player presses jump button
+enum bool isJumping = false;
 enum ATTACK_STATE {ATTACK_READY, ATTACK_NOT_READY} attackState; // set to NOT_READY when player presses Attack button
 // these two states are reset in another state machine
 
@@ -78,14 +78,14 @@ State buttonTckFct(State state) {
 		break;
 		case SM_BUTTON_INIT:			// initialize with player grounded and ready to attack
 		state = SM_BUTTON_WAIT;
-		jumpState = ON_GROUND;
+		isJumping = false;
 		attackState = ATTACK_READY;
 		break;
 		case SM_BUTTON_WAIT:
 		if (jump || attack) {
 			state = SM_BUTTON_RELEASE;
 			if (jump && !attack) {
-				jumpState = IN_AIR;
+				isJumping = true;
 			}
 			if (attack && !jump) {
 				attackState = ATTACK_NOT_READY;
