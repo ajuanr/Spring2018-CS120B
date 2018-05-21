@@ -8,12 +8,12 @@
 #include "playerMovement.h"
 #include "custom_chars.h"
 
+
 #define sceneWidth 16
 #define gameSceneSize 32
 
 const unsigned long RENDER_PERIOD = 50;
 
-//ConstByte gameScene[gameSceneSize] = {4};
 ConstByte gameScene[gameSceneSize] = {CACTUS, CACTUS, GROUND, GROUND, GROUND, GROUND, GROUND, CACTUS,
 									  GROUND, GROUND, GROUND, GROUND, GROUND, CACTUS, GROUND, GROUND,
 									  GROUND, GROUND, CACTUS, GROUND, GROUND, GROUND, GROUND, GROUND,
@@ -23,7 +23,8 @@ ConstByte gameScene[gameSceneSize] = {CACTUS, CACTUS, GROUND, GROUND, GROUND, GR
 void writeMsg(ConstByte*, ConstByte, ConstByte);
 void playerDisplay(ConstByte pos, enum bool isJumping);
 
-enum LCD_DRIVER_STATES {SM_LCD_START, SM_LCD_INIT, SM_LCD_BACKGROUND, SM_LCD_PLAYER, SM_LCD_WAIT};
+enum LCD_DRIVER_STATES {SM_LCD_START, SM_LCD_INIT, SM_LCD_BACKGROUND,
+						SM_LCD_PLAYER, SM_LCD_WAIT, SM_LCD_GAME_OVER};
 						
 State LCDtckFct(State state) {
 	switch(state) {
@@ -32,8 +33,14 @@ State LCDtckFct(State state) {
 			state = SM_LCD_INIT;
 			break;
 		case SM_LCD_INIT:
-			state = SM_LCD_BACKGROUND;
-			oldJumpState = isJumping;
+			if (!gameOver) {
+				LCD_ClearScreen();
+				state = SM_LCD_BACKGROUND;
+				oldJumpState = isJumping;
+			}
+			else {
+				state = SM_LCD_GAME_OVER;
+			}
 			break;
 		case SM_LCD_BACKGROUND:
 			state = SM_LCD_PLAYER;
@@ -47,6 +54,15 @@ State LCDtckFct(State state) {
 				state = SM_LCD_INIT;
 			}
 			break;
+		case SM_LCD_GAME_OVER:
+			if (gameReset) {
+				state = SM_LCD_INIT;
+			}
+			else {
+				LCD_ClearScreen();
+				LCD_DisplayString(1,"Game OVER");
+			}
+			break;
 		default:
 			state = SM_LCD_INIT;
 			break;
@@ -57,7 +73,7 @@ State LCDtckFct(State state) {
 		case SM_LCD_INIT: break;
 		case SM_LCD_BACKGROUND:
 			LCD_Cursor(15);						// for testing
-			LCD_WriteData(gameReset + '0');		// for testing
+			LCD_WriteData(playerPos + '0');		// for testing
 			// set background first
 			writeMsg(gameScene, playerPos, playerPos + sceneWidth);
 			break;
@@ -67,7 +83,6 @@ State LCDtckFct(State state) {
 	}									// end actions
 	return state;
 }
-
 
 // display 'size' characters of message 'str'
 void writeMsg(ConstByte* data, ConstByte start, ConstByte size) {
@@ -85,7 +100,7 @@ void writeMsg(ConstByte* data, ConstByte start, ConstByte size) {
 
 void playerDisplay(ConstByte pos, enum bool isJumping) {
 		ConstByte groundPos = 20;
-		ConstByte airPos = groundPos - LCDwidth;
+		ConstByte airPos = groundPos - sceneWidth;
 		if (isJumping) {
 			LCD_Cursor(groundPos);
 			LCD_WriteData(GROUND);

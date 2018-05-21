@@ -6,11 +6,9 @@
 #define _playerMovement_h_
 
 #include "common.h"
-
-Byte playerPos; // add 16 to get actually position on row 2 of LCD
+#include "globalData.h"
 
 ConstByte lvlWidth = 32;
-ConstByte LCDwidth = 16;
 
 const unsigned short POS_PERIOD = 350; // about 30 frames per second
 

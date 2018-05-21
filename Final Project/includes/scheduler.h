@@ -24,7 +24,6 @@ void timerISRSetup(Task *t, Byte size, unsigned long p) {
 	period = p;
 }
 
-
 void timerISR() {
 	for (Byte i = 0; i != tasksSize; ++i) {
 		if (tasks[i].elapsedTime > tasks[i].period) {
@@ -42,6 +41,7 @@ void timerISR() {
 			tasks[i].elapsedTime = 0;
 		}
 		gameReset = false;
+		gameOver = false;
 	}
 }
 

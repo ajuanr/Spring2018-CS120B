@@ -2,6 +2,7 @@
 #define _playerActions_h_
 
 #include "common.h"
+#include "globalData.h"
 
 #define jump (~PINA & 0x02)
 #define reset (~PINA & 0x04)
@@ -66,10 +67,7 @@ State directionTckFct(State state) {
  * they are reset back to default values after player either lands, or is ready to attack again
  * the resets are handled in another state machine
  */
-Byte gameReset;
-enum bool isJumping = false;
-enum ATTACK_STATE {ATTACK_READY, ATTACK_NOT_READY} attackState; // set to NOT_READY when player presses Attack button
-// these two states are reset in another state machine
+
 
 enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_RELEASE};
 
