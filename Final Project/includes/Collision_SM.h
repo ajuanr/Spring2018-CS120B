@@ -20,11 +20,11 @@ State collTckFct(State state) {
 		case SM_CHECK:
 			playerOffset = playerPos + 3; // player is at position one, but display on column 3
 			if (!isJumping) {
-				if (moveDirection == MOVE_RIGHT && gameScene[playerOffset] == CACTUS) {
+				if (moveDirection == MOVE_RIGHT && gameScene[playerOffset+1] == CACTUS) {
 					gameOver = true;
 					state = SM_LOST;
 				}
-				else if (moveDirection == MOVE_LEFT && gameScene[playerOffset] == CACTUS) {
+				else if (moveDirection == MOVE_LEFT && gameScene[playerOffset-1] == CACTUS) {
 					gameOver = true;
 					state = SM_LOST;
 				}

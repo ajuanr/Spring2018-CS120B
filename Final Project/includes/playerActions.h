@@ -13,10 +13,9 @@ void ADC_init() {
 	ADCSRA |= (1 << ADEN) | (1 << ADSC) | (1 << ADATE);
 }
 
-// Based on testing with a 103 pot and an LCD screen
-// Max value reached was 1008
-// Neutral should be in middle 1008/2 = 504
-const unsigned short neutral = 504;	// this should be the default position of the joystick,
+// Tested with joystick
+// Max value reached was 1011
+const unsigned short neutral = 536;	// this should be the default position of the joystick,
 									// if it's not moved from the neutral positions upon startup
 const unsigned short tolerance = 125; // allow some wiggle room with the neutral position (10%)
 

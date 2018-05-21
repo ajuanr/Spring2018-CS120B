@@ -31,10 +31,10 @@ State LCDtckFct(State state) {
 		static Byte oldJumpState;
 		case SM_LCD_START:
 			state = SM_LCD_INIT;
+			LCD_ClearScreen();
 			break;
 		case SM_LCD_INIT:
 			if (!gameOver) {
-				LCD_ClearScreen();
 				state = SM_LCD_BACKGROUND;
 				oldJumpState = isJumping;
 			}
@@ -72,8 +72,10 @@ State LCDtckFct(State state) {
 		case SM_LCD_START: break;
 		case SM_LCD_INIT: break;
 		case SM_LCD_BACKGROUND:
-			LCD_Cursor(15);						// for testing
-			LCD_WriteData(playerPos + '0');		// for testing
+			LCD_Cursor(13);						// for testing
+			LCD_WriteData(playerPos+3 + '0');		// for testing
+			LCD_Cursor(15);
+			LCD_WriteData(gameScene[playerPos+4] + '0');
 			// set background first
 			writeMsg(gameScene, playerPos, playerPos + sceneWidth);
 			break;
