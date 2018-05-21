@@ -5,7 +5,11 @@
 #ifndef _globaldata_h_
 #define _globaldata_h_
 
+#include <avr/eeprom.h>
 #include "common.h"
+
+Byte EEMEM HighScoreEEPROM; // set in collision_sm.h
+Byte highScore;
 
 // set in playerActions.h
 Byte gameReset;
@@ -16,6 +20,8 @@ enum ATTACK_STATE {ATTACK_READY, ATTACK_NOT_READY} attackState; // set to NOT_RE
 enum bool gameOver;
 
 // set in playerMovement.h
-Byte playerPos; 
+Byte playerPos;
+Byte currentScore;
+Byte highScore; 
 	
 #endif

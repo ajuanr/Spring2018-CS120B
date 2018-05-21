@@ -23,6 +23,7 @@ State posTckFct(State state) {
 		case SM_POS_INIT:
 		state = SM_POS_WAIT;
 		playerPos = 0;
+		currentScore = 0;
 		dir = MOVE_RIGHT; // pos = right / 0 = left
 		break;
 		case SM_POS_WAIT:
@@ -42,12 +43,18 @@ State posTckFct(State state) {
 	
 	switch (state) {							// start actions
 		case SM_POS_START: break;
-		case SM_POS_INIT: break;
+		case SM_POS_INIT: 
+			if (eeprom_read_byte(&HighScoreEEPROM) == 0xFF) {
+				eeprom_write_byte(&HighScoreEEPROM, 0);
+			}
 		case SM_POS_WAIT: break;
 		case SM_POS:
 		dir = (moveDirection == MOVE_RIGHT) ? MOVE_RIGHT : MOVE_LEFT;
 		if (dir == MOVE_RIGHT && playerPos < lvlWidth) { // MIGHT HAVE OFF BY ONE ERROR
 			++playerPos;
+			if (playerPos > currentScore) {		// update score when player moves right
+				currentScore = playerPos;
+			}
 		}
 		else if (dir == MOVE_LEFT && playerPos > 0) {
 			--playerPos;

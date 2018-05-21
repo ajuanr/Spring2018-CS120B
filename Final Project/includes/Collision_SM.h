@@ -1,6 +1,7 @@
 #ifndef _collision_sm_h_
 #define _collision_sm_h_
 
+#include <avr/eeprom.h>
 #include "LCD_Renderer_SM.h"
 #include "globalData.h"
 
@@ -31,8 +32,12 @@ State collTckFct(State state) {
 			}
 		break;
 		case SM_LOST:
-		if (!gameOver) {
-			state = SM_CINIT;
+			highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
+			if (currentScore > highScore) {
+				eeprom_update_byte(&HighScoreEEPROM, currentScore);
+			}
+			if (!gameOver) {
+				state = SM_CINIT;
 		}
 		break;
 	}

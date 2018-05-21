@@ -17,7 +17,7 @@ void ADC_init() {
 // Max value reached was 1011
 const unsigned short neutral = 536;	// this should be the default position of the joystick,
 									// if it's not moved from the neutral positions upon startup
-const unsigned short tolerance = 125; // allow some wiggle room with the neutral position (10%)
+const unsigned short tolerance = 75; // allow some wiggle room with the neutral position (<10%)
 
 const unsigned long INPUT_PERIOD = 50; 
 
@@ -66,8 +66,6 @@ State directionTckFct(State state) {
  * they are reset back to default values after player either lands, or is ready to attack again
  * the resets are handled in another state machine
  */
-
-
 enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_RELEASE};
 
 State buttonTckFct(State state) {

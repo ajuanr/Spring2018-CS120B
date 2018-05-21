@@ -72,10 +72,20 @@ State LCDtckFct(State state) {
 		case SM_LCD_START: break;
 		case SM_LCD_INIT: break;
 		case SM_LCD_BACKGROUND:
-			LCD_Cursor(13);						// for testing
+			highScore = eeprom_read_byte(&HighScoreEEPROM);
+			LCD_Cursor(8);
+			if (highScore != 0xFF) {
+				LCD_WriteData(highScore + '0');
+			}
+			else {
+				LCD_WriteData('0');
+			}
+			LCD_Cursor(10);						// for testing
 			LCD_WriteData(playerPos+3 + '0');		// for testing
-			LCD_Cursor(15);
+			LCD_Cursor(13);
 			LCD_WriteData(gameScene[playerPos+4] + '0');
+			LCD_Cursor(16);
+			LCD_WriteData(currentScore + '0');
 			// set background first
 			writeMsg(gameScene, playerPos, playerPos + sceneWidth);
 			break;
