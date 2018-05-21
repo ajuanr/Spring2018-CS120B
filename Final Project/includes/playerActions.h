@@ -4,7 +4,8 @@
 #include "common.h"
 
 #define jump (~PINA & 0x02)
-#define attack (~PINA & 0x04)
+#define reset (~PINA & 0x04)
+#define attack (~PINA & 0x08)
 
 // for potentiometer that the joystick uses
 void ADC_init() {
@@ -65,6 +66,7 @@ State directionTckFct(State state) {
  * they are reset back to default values after player either lands, or is ready to attack again
  * the resets are handled in another state machine
  */
+Byte gameReset;
 enum bool isJumping = false;
 enum ATTACK_STATE {ATTACK_READY, ATTACK_NOT_READY} attackState; // set to NOT_READY when player presses Attack button
 // these two states are reset in another state machine
@@ -79,21 +81,25 @@ State buttonTckFct(State state) {
 		case SM_BUTTON_INIT:			// initialize with player grounded and ready to attack
 		state = SM_BUTTON_WAIT;
 		isJumping = false;
+		gameReset = false;
 		attackState = ATTACK_READY;
 		break;
 		case SM_BUTTON_WAIT:
-		if (jump || attack) {
+		if (jump || attack || reset) {
 			state = SM_BUTTON_RELEASE;
-			if (jump && !attack) {
+			if (jump && !attack && !reset) {
 				isJumping = true;
 			}
-			if (attack && !jump) {
+			if (attack && !jump && !reset) {
 				attackState = ATTACK_NOT_READY;
+			}
+			if (reset) {
+				gameReset = true; // resets to false in TIMERISR
 			}
 		}
 		break;
 		case SM_BUTTON_RELEASE:
-		if (!jump && !attack) {
+		if (!jump && !attack && !reset) {
 			state = SM_BUTTON_WAIT;
 		}
 		break;

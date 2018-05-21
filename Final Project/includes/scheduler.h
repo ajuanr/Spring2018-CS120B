@@ -35,6 +35,14 @@ void timerISR() {
 			tasks[i].elapsedTime += period;
 		}
 	}
+	// reset all states when reset is pressed
+	if (gameReset) {
+		for (Byte i = 0; i != tasksSize; ++i) {
+			tasks[i].state = 0;
+			tasks[i].elapsedTime = 0;
+		}
+		gameReset = false;
+	}
 }
 
 #endif

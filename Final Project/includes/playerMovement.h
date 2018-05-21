@@ -24,7 +24,7 @@ State posTckFct(State state) {
 		break;
 		case SM_POS_INIT:
 		state = SM_POS_WAIT;
-		playerPos = 1;
+		playerPos = 0;
 		dir = MOVE_RIGHT; // pos = right / 0 = left
 		break;
 		case SM_POS_WAIT:

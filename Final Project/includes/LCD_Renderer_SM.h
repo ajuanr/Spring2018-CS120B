@@ -21,17 +21,19 @@ ConstByte gameScene[gameSceneSize] = {CACTUS, CACTUS, GROUND, GROUND, GROUND, GR
 
 
 void writeMsg(ConstByte*, ConstByte, ConstByte);
-void LCD_ClearRow(ConstByte);
+void playerDisplay(ConstByte pos, enum bool isJumping);
 
 enum LCD_DRIVER_STATES {SM_LCD_START, SM_LCD_INIT, SM_LCD_BACKGROUND, SM_LCD_PLAYER, SM_LCD_WAIT};
 						
 State LCDtckFct(State state) {
 	switch(state) {
+		static Byte oldJumpState;
 		case SM_LCD_START:
 			state = SM_LCD_INIT;
 			break;
 		case SM_LCD_INIT:
 			state = SM_LCD_BACKGROUND;
+			oldJumpState = isJumping;
 			break;
 		case SM_LCD_BACKGROUND:
 			state = SM_LCD_PLAYER;
@@ -40,7 +42,8 @@ State LCDtckFct(State state) {
 			state = SM_LCD_WAIT;
 			break;
 		case SM_LCD_WAIT:
-			if (moveDirection != MOVE_STOP) {
+			// only update screen is player is not static
+			if (moveDirection != MOVE_STOP || oldJumpState != isJumping) {
 				state = SM_LCD_INIT;
 			}
 			break;
@@ -54,22 +57,12 @@ State LCDtckFct(State state) {
 		case SM_LCD_INIT: break;
 		case SM_LCD_BACKGROUND:
 			LCD_Cursor(15);						// for testing
-			LCD_WriteData(isJumping + '0');		// for testing
+			LCD_WriteData(gameReset + '0');		// for testing
 			// set background first
 			writeMsg(gameScene, playerPos, playerPos + sceneWidth);
 			break;
 		case SM_LCD_PLAYER:
-			if (isJumping) {
-				LCD_Cursor(20);
-				LCD_WriteData(GROUND);
-				LCD_Cursor(4);
-			}
-			else {
-				LCD_Cursor(4);
-				LCD_WriteData(' ');
-				LCD_Cursor(20);
-			}
-			playerPos % 2 == 0 ? LCD_WriteData(DINORight1) : LCD_WriteData(DINORight2);
+			playerDisplay(playerPos, isJumping);
 			break;
 	}									// end actions
 	return state;
@@ -89,5 +82,29 @@ void writeMsg(ConstByte* data, ConstByte start, ConstByte size) {
 		}
 	}
 }
+
+void playerDisplay(ConstByte pos, enum bool isJumping) {
+		ConstByte groundPos = 20;
+		ConstByte airPos = groundPos - LCDwidth;
+		if (isJumping) {
+			LCD_Cursor(groundPos);
+			LCD_WriteData(GROUND);
+			LCD_Cursor(airPos);
+		}
+		else {
+			LCD_Cursor(airPos);
+			LCD_WriteData(' ');
+			LCD_Cursor(groundPos);
+		}
+		if (moveDirection == MOVE_RIGHT) {
+			playerPos % 2 == 0 ? LCD_WriteData(DINORight1) : LCD_WriteData(DINORight2);
+		}
+		else if (moveDirection == MOVE_LEFT) {
+			playerPos % 2 == 0 ? LCD_WriteData(DINOLeft1) : LCD_WriteData(DINOLeft2);
+		}
+		else {
+			LCD_WriteData(DINORight1);
+		}
+	};
 
 #endif
