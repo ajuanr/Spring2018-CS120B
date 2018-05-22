@@ -32,14 +32,23 @@ State collTckFct(State state) {
 			}
 		break;
 		case SM_LOST:
-			highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
-			if (currentScore > highScore) {
-				eeprom_update_byte(&HighScoreEEPROM, currentScore);
-			}
 			if (!gameOver) {
 				state = SM_CINIT;
 		}
 		break;
+	}
+	
+	switch (state) {
+		case SM_CSTART: break;
+		case SM_CINIT: break;
+		case SM_CHECK: break;
+		case SM_LOST:
+			highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
+			if (currentScore > highScore) {
+				eeprom_update_byte(&HighScoreEEPROM, currentScore);
+			}
+			break;
+		
 	}
 	return state;
 }

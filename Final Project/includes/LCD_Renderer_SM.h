@@ -23,8 +23,7 @@ ConstByte gameScene[gameSceneSize] = {CACTUS, CACTUS, GROUND, GROUND, GROUND, GR
 void writeMsg(ConstByte*, ConstByte, ConstByte);
 void playerDisplay(ConstByte pos, enum bool isJumping);
 
-enum LCD_DRIVER_STATES {SM_LCD_START, SM_LCD_INIT, SM_LCD_BACKGROUND,
-						SM_LCD_PLAYER, SM_LCD_WAIT, SM_LCD_GAME_OVER};
+enum LCD_DRIVER_STATES {SM_LCD_START, SM_LCD_INIT, SM_LCD_RENDER, SM_LCD_WAIT, SM_LCD_GAME_OVER};
 						
 State LCDtckFct(State state) {
 	switch(state) {
@@ -35,17 +34,16 @@ State LCDtckFct(State state) {
 			break;
 		case SM_LCD_INIT:
 			if (!gameOver) {
-				state = SM_LCD_BACKGROUND;
+				state = SM_LCD_RENDER;
 				oldJumpState = isJumping;
 			}
 			else {
 				state = SM_LCD_GAME_OVER;
+				LCD_ClearScreen();
+				LCD_DisplayString(1,"Game OVER");
 			}
 			break;
-		case SM_LCD_BACKGROUND:
-			state = SM_LCD_PLAYER;
-			break;
-		case SM_LCD_PLAYER:
+		case SM_LCD_RENDER:
 			state = SM_LCD_WAIT;
 			break;
 		case SM_LCD_WAIT:
@@ -58,10 +56,7 @@ State LCDtckFct(State state) {
 			if (gameReset) {
 				state = SM_LCD_INIT;
 			}
-			else {
-				LCD_ClearScreen();
-				LCD_DisplayString(1,"Game OVER");
-			}
+				
 			break;
 		default:
 			state = SM_LCD_INIT;
@@ -71,7 +66,7 @@ State LCDtckFct(State state) {
 	switch (state) {					// start actions
 		case SM_LCD_START: break;
 		case SM_LCD_INIT: break;
-		case SM_LCD_BACKGROUND:
+		case SM_LCD_RENDER:
 			highScore = eeprom_read_byte(&HighScoreEEPROM);
 			LCD_Cursor(8);
 			if (highScore != 0xFF) {
@@ -80,17 +75,21 @@ State LCDtckFct(State state) {
 			else {
 				LCD_WriteData('0');
 			}
+			/****** debugging stuff ****/
 			LCD_Cursor(10);						// for testing
 			LCD_WriteData(playerPos+3 + '0');		// for testing
 			LCD_Cursor(13);
 			LCD_WriteData(gameScene[playerPos+4] + '0');
 			LCD_Cursor(16);
 			LCD_WriteData(currentScore + '0');
+			/******* end debugging ***/
 			// set background first
 			writeMsg(gameScene, playerPos, playerPos + sceneWidth);
-			break;
-		case SM_LCD_PLAYER:
+			
+			// place player in scene
 			playerDisplay(playerPos, isJumping);
+			break;
+		case SM_LCD_GAME_OVER:
 			break;
 	}									// end actions
 	return state;
