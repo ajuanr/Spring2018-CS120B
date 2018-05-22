@@ -4,7 +4,7 @@
 #define _LCDRenderer_h_
 
 #include "common.h"
-#include "playerActions.h"
+#include "Input_SM.h"
 #include "playerMovement.h"
 #include "custom_chars.h"
 

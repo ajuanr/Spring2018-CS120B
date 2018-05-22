@@ -4,7 +4,6 @@
 
 #include "common.h"
 
-
 Byte dinoRight1[8] = {
 	0b11111,
 	0b01101,

@@ -2,7 +2,6 @@
 #define scheduler_h
 
 #include "common.h"
-#include "motion_detector.h"
 
 typedef struct Task {
     State state;

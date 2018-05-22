@@ -1,5 +1,5 @@
-#ifndef _playerActions_h_
-#define _playerActions_h_
+#ifndef _input_sm_h_
+#define _input_sm_h_
 
 #include "common.h"
 #include "globalData.h"
@@ -17,9 +17,9 @@ void ADC_init() {
 // Max value reached was 1011
 const unsigned short neutral = 536;	// this should be the default position of the joystick,
 									// if it's not moved from the neutral positions upon startup
-const unsigned short tolerance = 75; // allow some wiggle room with the neutral position (<10%)
+ConstByte tolerance = 75; // allow some wiggle room with the neutral position (<10%)
 
-const unsigned long INPUT_PERIOD = 50; 
+ConstByte INPUT_PERIOD = 50; 
 
 /* State machine to move player left and right
  * moveDirection is a global variable that will be used to update the player position on the display
@@ -57,7 +57,6 @@ State directionTckFct(State state) {
 		case SM_DIRECT_INIT: break;
 		case SM_DIRECT_WAIT: break;
 	}									// end actions
-	
 	return state;
 }
 
