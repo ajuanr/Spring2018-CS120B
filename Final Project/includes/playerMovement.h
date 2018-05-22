@@ -10,7 +10,7 @@
 
 ConstByte lvlWidth = 32;
 
-const unsigned short POS_PERIOD = 100; // about 60 frames per second
+const unsigned short POS_PERIOD = 250;
 
 enum POS_STATES {SM_POS_START, SM_POS_INIT, SM_POS_WAIT, SM_POS_CHANGE};
 

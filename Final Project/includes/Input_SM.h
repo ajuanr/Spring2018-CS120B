@@ -15,11 +15,11 @@ void ADC_init() {
 
 // Tested with joystick
 // Max value reached was 1011
-const unsigned short neutral = 536;	// this should be the default position of the joystick,
+const unsigned short neutral = 547;	// this should be the default position of the joystick,
 									// if it's not moved from the neutral positions upon startup
-ConstByte tolerance = 75; // allow some wiggle room with the neutral position (<10%)
+ConstByte tolerance = 50; // allow some wiggle room with the neutral position (<10%)
 
-ConstByte INPUT_PERIOD = 50; 
+unsigned short joyStickPeriod = 250; 
 
 /* State machine to move player left and right
  * moveDirection is a global variable that will be used to update the player position on the display
@@ -28,7 +28,7 @@ enum MOVE_DIRECTION {MOVE_STOP, MOVE_LEFT, MOVE_RIGHT} moveDirection; // Global.
 
 enum DIRECTION_STATES {SM_DIRECT_START, SM_DIRECT_INIT, SM_DIRECT_WAIT};
 
-State directionTckFct(State state) {
+State joystickTckFct(State state) {
 	unsigned short current = ADC;		// get the current value of the joystick position
 	switch (state) {					// begin transitions
 		case SM_DIRECT_START:
@@ -66,6 +66,9 @@ State directionTckFct(State state) {
  * they are reset back to default values after player either lands, or is ready to attack again
  * the resets are handled in another state machine
  */
+
+ConstByte buttonPeriod = 50;
+
 enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_RELEASE};
 
 State buttonTckFct(State state) {
