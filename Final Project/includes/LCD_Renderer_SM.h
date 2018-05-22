@@ -50,7 +50,6 @@ State LCDtckFct(State state) {
 			}
 			else {
 				state = SM_LCD_GAME_OVER;
-				LCD_ClearScreen();
 				LCD_DisplayString(1,"Game OVER");
 			}
 			break;
@@ -72,9 +71,9 @@ State LCDtckFct(State state) {
 		case SM_LCD_RENDER:
 			highScore = eeprom_read_byte(&HighScoreEEPROM);
 			//LCD_Cursor(8);
-			if (highScore != 0xFF) {
+			if (highScore != 0xFF) {			// read returns 255 if not set
 				sprintf(str, "%u", highScore);
-				LCD_WriteMsg(str, 5);
+				LCD_WriteMsg(str, 6);
 				//LCD_WriteData(highScore + '0');
 			}
 			else {
@@ -83,9 +82,9 @@ State LCDtckFct(State state) {
 			}
 			/****** debugging stuff ****/
 			LCD_Cursor(10);						// for testing
-			LCD_WriteData(playerPos + '0');		// for testing
+			LCD_WriteData(playerPos+3 + '0');		// for testing
 			LCD_Cursor(13);
-			LCD_WriteData(gameScene[playerPos+1] + '0');
+			LCD_WriteData(gameScene[playerPos+4] + '0');
 			/******* end debugging ***/
 			// set background first
 			LCD_DisplayScene(gameScene, playerPos%33, playerPos%33 + sceneWidth);
@@ -114,8 +113,9 @@ void LCD_DisplayScene(ConstByte* data, ConstByte start, ConstByte size) {
 }
 
 void LCD_WriteMsg(Byte *str, Byte cursorStart) {
+	Byte start = cursorStart;
 	while (*str) {
-		LCD_Cursor(cursorStart++);
+		LCD_Cursor(start++);
 		LCD_WriteData(*str++);
 	}
 }
