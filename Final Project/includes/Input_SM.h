@@ -38,13 +38,14 @@ State directionTckFct(State state) {
 		state = SM_DIRECT_WAIT;
 		break;
 		case SM_DIRECT_WAIT:
-		moveDirection = MOVE_STOP;  // assume joystick is in neutral position
-		// adjust if necessary
 		if (current < (neutral - tolerance) ) {
 			moveDirection = MOVE_LEFT;
 		}
 		else if ( current > (neutral + tolerance) ) {
 			moveDirection = MOVE_RIGHT;
+		}
+		else {
+			moveDirection = MOVE_STOP;
 		}
 		break;
 		default:

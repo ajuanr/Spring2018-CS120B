@@ -33,23 +33,23 @@ State LCDtckFct(State state) {
 			LCD_ClearScreen();
 			break;
 		case SM_LCD_INIT:
-			if (!gameOver) {
 				state = SM_LCD_RENDER;
 				oldJumpState = isJumping;
-			}
-			else {
-				state = SM_LCD_GAME_OVER;
-				LCD_ClearScreen();
-				LCD_DisplayString(1,"Game OVER");
-			}
 			break;
 		case SM_LCD_RENDER:
 			state = SM_LCD_WAIT;
 			break;
 		case SM_LCD_WAIT:
 			// only update screen is player is not static
-			if (moveDirection != MOVE_STOP || oldJumpState != isJumping) {
-				state = SM_LCD_INIT;
+			if (!gameOver) {
+				if (moveDirection != MOVE_STOP || oldJumpState != isJumping) {
+					state = SM_LCD_INIT;
+				}
+			}
+			else {
+				state = SM_LCD_GAME_OVER;
+				LCD_ClearScreen();
+				LCD_DisplayString(1,"Game OVER");
 			}
 			break;
 		case SM_LCD_GAME_OVER:
@@ -77,11 +77,9 @@ State LCDtckFct(State state) {
 			}
 			/****** debugging stuff ****/
 			LCD_Cursor(10);						// for testing
-			LCD_WriteData(playerPos+3 + '0');		// for testing
+			LCD_WriteData(playerPos + '0');		// for testing
 			LCD_Cursor(13);
-			LCD_WriteData(gameScene[playerPos+4] + '0');
-			LCD_Cursor(16);
-			LCD_WriteData(currentScore + '0');
+			LCD_WriteData(gameScene[playerPos+1] + '0');
 			/******* end debugging ***/
 			// set background first
 			writeMsg(gameScene, playerPos, playerPos + sceneWidth);
