@@ -13,8 +13,7 @@ Byte highScore;
 
 // set in playerActions.h
 Byte gameReset;
-enum bool isJumping = false;
-enum ATTACK_STATE {ATTACK_READY, ATTACK_NOT_READY} attackState; // set to NOT_READY when player presses Attack button
+enum bool isJumping;
 	
 // set in Collision_SM.h
 enum bool gameOver;

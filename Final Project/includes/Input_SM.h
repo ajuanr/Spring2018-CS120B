@@ -6,7 +6,6 @@
 
 #define jump (~PINA & 0x02)
 #define reset (~PINA & 0x04)
-#define attack (~PINA & 0x08)
 
 // for potentiometer that the joystick uses
 void ADC_init() {
@@ -19,7 +18,7 @@ const unsigned short neutral = 547;	// this should be the default position of th
 									// if it's not moved from the neutral positions upon startup
 ConstByte tolerance = 50; // allow some wiggle room with the neutral position (<10%)
 
-unsigned short joyStickPeriod = 250; 
+unsigned short joyStickPeriod = 50; 
 
 /* State machine to move player left and right
  * moveDirection is a global variable that will be used to update the player position on the display
@@ -32,25 +31,25 @@ State joystickTckFct(State state) {
 	unsigned short current = ADC;		// get the current value of the joystick position
 	switch (state) {					// begin transitions
 		case SM_DIRECT_START:
-		state = SM_DIRECT_INIT;
-		break;
+			state = SM_DIRECT_INIT;
+			break;
 		case SM_DIRECT_INIT:
-		state = SM_DIRECT_WAIT;
-		break;
+			state = SM_DIRECT_WAIT;
+			break;
 		case SM_DIRECT_WAIT:
-		if (current < (neutral - tolerance) ) {
-			moveDirection = MOVE_LEFT;
-		}
-		else if ( current > (neutral + tolerance) ) {
-			moveDirection = MOVE_RIGHT;
-		}
-		else {
-			moveDirection = MOVE_STOP;
-		}
-		break;
+			if (current < (neutral - tolerance) ) {
+				moveDirection = MOVE_LEFT;
+			}
+			else if ( current > (neutral + tolerance) ) {
+				moveDirection = MOVE_RIGHT;
+			}
+			else {
+				moveDirection = MOVE_STOP;
+			}
+			break;
 		default:
-		state = SM_DIRECT_START;
-		break;
+			state = SM_DIRECT_START;
+			break;
 	}									// end transitions
 	
 	switch (state) {					// start actions
@@ -74,30 +73,26 @@ enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_R
 State buttonTckFct(State state) {
 	switch (state) {					// begin transitions
 		case SM_BUTTON_START:
-		state = SM_BUTTON_INIT;
-		break;
+			state = SM_BUTTON_INIT;
+			break;
 		case SM_BUTTON_INIT:			// initialize with player grounded and ready to attack
-		state = SM_BUTTON_WAIT;
-		isJumping = false;
-		gameReset = false;
-		attackState = ATTACK_READY;
+			state = SM_BUTTON_WAIT;
+			gameReset = false;
 		break;
 		case SM_BUTTON_WAIT:
-		if (jump || attack || reset) {
-			state = SM_BUTTON_RELEASE;
-			if (jump && !attack && !reset) {
-				isJumping = true;
+			if (jump || reset) {
+				state = SM_BUTTON_RELEASE;
+				if (jump && !reset) {
+					isJumping = true;
+				}
+				if (reset) {
+					gameOver = false;
+					gameReset = true;
+				}
 			}
-			if (attack && !jump && !reset) {
-				attackState = ATTACK_NOT_READY;
-			}
-			if (reset) {
-				gameReset = true; // resets to false in TIMERISR
-			}
-		}
-		break;
+			break;
 		case SM_BUTTON_RELEASE:
-		if (!jump && !attack && !reset) {
+		if (!jump && !reset) {
 			state = SM_BUTTON_WAIT;
 		}
 		break;

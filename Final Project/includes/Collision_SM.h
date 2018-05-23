@@ -9,27 +9,28 @@ enum collision {SM_CSTART, SM_CINIT, SM_CHECK, SM_LOST};
 
 // this function checks for the game over
 State collTckFct(State state) {
-	Byte playerOffset;
+	Byte LCD_pos;		// this is where player is displayed on screen
 	switch (state) {
 		case SM_CSTART:
 		state = SM_CINIT;
 		break;
 		case SM_CINIT:
 		gameOver = false;
+		LCD_pos = playerPos + 3;
 		state = SM_CHECK;
 		break;
 		case SM_CHECK:
-			playerOffset = playerPos + 3; // player is at position one, but displayed on column 3
+			LCD_pos = playerPos + 3; // player is at position one, but displayed on column 3
 			if (!isJumping) {
-				if (moveDirection == MOVE_RIGHT && gameScene[playerOffset+1] == CACTUS) {
+				if (moveDirection == MOVE_RIGHT && gameScene[LCD_pos+1] == CACTUS) {
 					gameOver = true;
 					state = SM_LOST;
 				}
-				else if (moveDirection == MOVE_LEFT && gameScene[playerOffset-1] == CACTUS) {
+				else if (moveDirection == MOVE_LEFT && gameScene[LCD_pos-1] == CACTUS) {
 					gameOver = true;
 					state = SM_LOST;
 				}
-				else if (gameScene[playerOffset] == CACTUS) {
+				else if (gameScene[LCD_pos] == CACTUS) {
 					gameOver = true;
 					state = SM_LOST;
 				}
