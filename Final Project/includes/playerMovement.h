@@ -8,13 +8,12 @@
 #include "common.h"
 #include "globalData.h"
 
-//ConstByte lvlWidth = 32;
+const unsigned short POS_PERIOD = 150;
 
-const unsigned short POS_PERIOD = 200;
-
-enum POS_STATES {SM_POS_START, SM_POS_INIT, SM_POS_WAIT, SM_POS_CHANGE};
+enum POS_STATES {SM_POS_START, SM_POS_INIT, SM_POS_WAIT, SM_RIGHT, SM_LEFT};
 
 State posTckFct(State state) {
+	ConstByte column = 3;
 	switch (state) {						// start transitions
 		case SM_POS_START:
 			state = SM_POS_INIT;
@@ -22,16 +21,38 @@ State posTckFct(State state) {
 		case SM_POS_INIT:
 			state = SM_POS_WAIT;
 			playerPos = 0;
+			LCD_pos = playerPos + column;
 			currentScore = 0;
+			isPlayerMoving = false;
 		break;
 		case SM_POS_WAIT:
-			if (moveDirection != MOVE_STOP) { // player is moving
-				state = SM_POS_CHANGE;
+			if (moveDirection == MOVE_RIGHT) {
+				isPlayerMoving = true;
+				state = SM_RIGHT;
+			}
+			else if (moveDirection == MOVE_LEFT) {
+				isPlayerMoving = true;
+				state = SM_LEFT;
 			}
 			break;
-		case SM_POS_CHANGE:
+		case SM_RIGHT:
 			if (moveDirection == MOVE_STOP) {
+				isPlayerMoving = false;
 				state = SM_POS_WAIT;
+			}
+			else if (moveDirection == MOVE_LEFT) {
+				isPlayerMoving = true;
+				state = SM_LEFT;
+			}
+			break;
+		case SM_LEFT:
+			if (moveDirection == MOVE_STOP) {
+				isPlayerMoving = false;
+				state = SM_POS_WAIT;
+			}
+			else if (moveDirection == MOVE_RIGHT) {
+				isPlayerMoving = true;
+				state = SM_RIGHT;
 			}
 			break;
 		default:
@@ -43,22 +64,24 @@ State posTckFct(State state) {
 		case SM_POS_START: break;
 		case SM_POS_INIT: break;
 		case SM_POS_WAIT: break;
-		case SM_POS_CHANGE:
-			if (moveDirection == MOVE_RIGHT) {// && playerPos < lvlWidth) { // MIGHT HAVE OFF BY ONE ERROR
-				++playerPos;
-				if (playerPos > currentScore) {		// update score when player moves right
-					currentScore = playerPos;
-				}
+		case SM_RIGHT:
+			++playerPos;
+			++LCD_pos;
+			if (playerPos > currentScore) {		// update score when player moves right
+				currentScore = playerPos;
 			}
-			else if (moveDirection == MOVE_LEFT && playerPos > 0) {
+			break;
+		case SM_LEFT:
+			if (playerPos > 0) {
 				--playerPos;
+				--LCD_pos;
 			}
 			break;
 	}											// end actions
 	return state;
 }
 
-const unsigned short JUMP_PERIOD = 250;
+const unsigned short JUMP_PERIOD = 300;
 
 enum LCD_JUMP_STATES {SM_JUMP_START, SM_JUMP_INIT, SM_JUMP_ON_GROUND, SM_JUMP_IN_AIR};
 
@@ -73,7 +96,6 @@ State jumpTckFct(State state) {
 			break;
 		case SM_JUMP_ON_GROUND:
 			if (isJumping) {
-				isJumping = true;
 				state = SM_JUMP_IN_AIR;
 			}
 			break;

@@ -12,7 +12,7 @@
 #define sceneWidth 16
 #define gameSceneSize 32
 
-const unsigned long RENDER_PERIOD = 50;
+const unsigned long RENDER_PERIOD = 25;
 
 ConstByte gameScene[gameSceneSize] = {CACTUS, CACTUS, GROUND, GROUND, GROUND, GROUND, GROUND, CACTUS,
 									  GROUND, GROUND, GROUND, GROUND, GROUND, CACTUS, GROUND, GROUND,
@@ -32,6 +32,7 @@ State LCDtckFct(State state) {
 	Byte str[10];
 	static Byte oldJumpState;
 	static Byte oldPosition;
+	static Byte oldProjPos;
 	switch(state) {
 		case SM_LCD_START:
 			state = SM_LCD_INIT;
@@ -40,13 +41,28 @@ State LCDtckFct(State state) {
 				state = SM_LCD_RENDER;
 			break;
 		case SM_LCD_RENDER:
+		if (gameOver) {
+			state = SM_LCD_GAME_OVER;
+			sprintf(str, "Game Over");
+			LCD_WriteMsg(str, 1);
+			clearStr(str, strSize);
+		}
+		else 
 			state = SM_LCD_WAIT;
 			break;
 		case SM_LCD_WAIT:
+
 			// only update screen is player is not static
-				if (oldPosition != playerPos || oldJumpState != isJumping) {
-					oldJumpState = isJumping;
-					oldPosition = playerPos;
+		if (isPlayerMoving || oldJumpState != isJumping || oldProjPos != projPos) {
+					if (oldPosition != playerPos) {
+						oldPosition = playerPos;
+					}
+					if (oldJumpState != isJumping) {
+						oldJumpState = isJumping;
+					}
+					if (oldProjPos != projPos) {
+						oldProjPos = projPos;
+					}
 					state = SM_LCD_INIT;
 				}
 				break;
@@ -67,6 +83,7 @@ State LCDtckFct(State state) {
 		case SM_LCD_INIT:
 			oldJumpState = false;
 			oldPosition = playerPos;
+			oldProjPos = projPos;
 			if ((highScore = eeprom_read_byte(&HighScoreEEPROM)) == 0xFF) {
 				eeprom_update_byte(&HighScoreEEPROM, 0x00);
 			}
@@ -75,21 +92,29 @@ State LCDtckFct(State state) {
 			highScore = eeprom_read_byte(&HighScoreEEPROM);
 			// set background first
 			LCD_DisplayScene(gameScene, playerPos%17, playerPos%17 + sceneWidth);
-						
-			sprintf(str, "H: %d", highScore);
-			LCD_WriteMsg(str, 6);
-			clearStr(str, strSize);
-			sprintf(str, "S: %d", currentScore);
-			LCD_WriteMsg(str, 12);
-			clearStr(str, strSize);
+			
+			/* KEEP THIS */			
+			//sprintf(str, "H: %d", highScore);
+			//LCD_WriteMsg(str, 6);
+			//clearStr(str, strSize);
+			//sprintf(str, "S: %d", currentScore);
+			//LCD_WriteMsg(str, 12);
+			//clearStr(str, strSize);
+			/* END KEEP THIS */
+			
 			/****** debugging stuff ****/
-			//LCD_Cursor(10);						// for testing
-			//LCD_WriteData(playerPos+3 + '0');		// for testing
-			//LCD_Cursor(13);
-			//LCD_WriteData(gameScene[playerPos+4] + '0');
-			//LCD_Cursor(16);
-			//LCD_WriteData(gameOver + '0');
+			LCD_Cursor(6);
+			LCD_WriteData(playerPos + '0');
+			sprintf(str, "%u", projPos);
+			LCD_WriteMsg(str, 8);
+			clearStr(str, strSize);
+			LCD_Cursor(8);
+			LCD_WriteData(gameScene[LCD_pos + 1] + '0');
+			LCD_Cursor(16);
+			LCD_WriteData(gameOver + '0');
 			/******* end debugging ***/
+			LCD_Cursor(projPos + 16);
+			LCD_WriteData(0xA5);
 			// place player in scene
 			playerDisplay(playerPos, isJumping);
 			break;
