@@ -27,5 +27,6 @@ enum bool isPlayerMoving;
 
 // set in projectile_SM.h
 Byte projPos;	// position of the projectile shot at players
+Byte isProjMoving;
 
 #endif

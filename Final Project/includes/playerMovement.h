@@ -81,7 +81,7 @@ State posTckFct(State state) {
 	return state;
 }
 
-const unsigned short JUMP_PERIOD = 300;
+const unsigned short JUMP_PERIOD = 400;
 
 enum LCD_JUMP_STATES {SM_JUMP_START, SM_JUMP_INIT, SM_JUMP_ON_GROUND, SM_JUMP_IN_AIR};
 
