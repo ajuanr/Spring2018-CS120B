@@ -5,6 +5,8 @@
 #include "LCD_Renderer_SM.h"
 #include "globalData.h"
 
+const unsigned short COLLISION_PERIOD = 50;
+
 enum collision {SM_CSTART, SM_CINIT, SM_CHECK, SM_LOST};
 
 // this function checks for the game over
@@ -22,7 +24,7 @@ State collTckFct(State state) {
 		case SM_CHECK:
 			LCD_pos = playerPos + 3;
 			if (!isJumping) {
-				if (gameScene[LCD_pos] == CACTUS) {
+				if (gameScene[LCD_pos] == CACTUS || (LCD_pos == projPos && !isJumping)) {
 					gameOver = true;
 					state = SM_LOST;
 				}

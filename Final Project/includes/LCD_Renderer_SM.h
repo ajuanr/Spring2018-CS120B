@@ -84,10 +84,10 @@ State LCDtckFct(State state) {
 			LCD_DisplayScene(gameScene, playerPos%17, playerPos%17 + sceneWidth);
 			
 			/* KEEP THIS */			
-			sprintf(str, "H: %d", highScore);
+			sprintf(str, "H: %u", highScore);
 			LCD_WriteMsg(str, 6);
 			clearStr(str, strSize);
-			sprintf(str, "S: %d", currentScore);
+			sprintf(str, "S: %u", currentScore);
 			LCD_WriteMsg(str, 12);
 			clearStr(str, strSize);
 			/* END KEEP THIS */

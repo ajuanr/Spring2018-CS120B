@@ -23,14 +23,14 @@ State projTckFct(State state) {
 		case SM_PROJ_WAITFIRE:
 			if (i >= 8) {
 				state = SM_PROJ_MOVING;
+				isProjMoving = true;
 				projPos = 0;
 				i = 0;
 			}
 			break;
 		case SM_PROJ_MOVING:
-			if (projPos++ > playerPos%16 + 13) {
+			if (projPos++ > playerPos%16 + 15) {
 				state = SM_PROJ_INIT;
-			
 			}
 			break;
 		default:
@@ -49,10 +49,7 @@ State projTckFct(State state) {
 			output >>= 1;
 			++i;
 			break;
-		case SM_PROJ_MOVING:
-			isProjMoving = true;
-			//++projPos;
-		break;
+		case SM_PROJ_MOVING: break;
 	}
 	shiftDataIn(output);
 	return state;
