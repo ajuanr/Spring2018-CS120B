@@ -5,6 +5,7 @@
 #ifndef _playerMovement_h_
 #define _playerMovement_h_
 
+#include <avr/eeprom.h>
 #include "common.h"
 #include "globalData.h"
 
@@ -74,6 +75,10 @@ State posTckFct(State state) {
 			if (gameScene[LCD_pos + 1] == CACTUS && !isJumping) {
 				gameOver = true;
 				state = SM_END;
+				highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
+				if (currentScore > highScore) {
+					eeprom_update_byte(&HighScoreEEPROM, currentScore);
+				}
 			}
 			else if (playerPos > currentScore) {		// update score when player moves right
 				currentScore = playerPos;
@@ -85,15 +90,15 @@ State posTckFct(State state) {
 				--LCD_pos;
 				if (gameScene[LCD_pos - 1] == CACTUS && !isJumping) {
 					gameOver = true;
+					highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
+					if (currentScore > highScore) {
+						eeprom_update_byte(&HighScoreEEPROM, currentScore);
+					}
 					state = SM_END;
 				}
 			}
 			break;
 		case SM_END:
-			highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
-			if (currentScore > highScore) {
-				eeprom_update_byte(&HighScoreEEPROM, currentScore);
-			}
 			break;
 	}											// end actions
 	return state;
