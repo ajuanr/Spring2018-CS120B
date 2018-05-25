@@ -8,16 +8,7 @@
 //#include "playerMovement.h"
 #include "custom_chars.h"
 
-
-#define sceneWidth 16
-#define gameSceneSize 32
-
 const unsigned long RENDER_PERIOD = 25;
-
-ConstByte gameScene[gameSceneSize] = {CACTUS, CACTUS, GROUND, GROUND, GROUND, GROUND, GROUND, CACTUS,
-									  GROUND, GROUND, GROUND, GROUND, GROUND, CACTUS, GROUND, GROUND,
-									  GROUND, GROUND, CACTUS, GROUND, GROUND, GROUND, GROUND, GROUND,
-									  GROUND, GROUND, GROUND, GROUND, CACTUS, GROUND, GROUND, GROUND,};
 
 
 void LCD_DisplayScene(ConstByte*, ConstByte, ConstByte);
@@ -49,7 +40,6 @@ State LCDtckFct(State state) {
 			state = SM_LCD_WAIT;
 			break;
 		case SM_LCD_WAIT:
-
 			// only update screen is player is not static
 		if (isPlayerMoving || oldJumpState != isJumping || isProjMoving) {
 					if (oldJumpState != isJumping) {

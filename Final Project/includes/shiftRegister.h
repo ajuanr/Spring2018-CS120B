@@ -12,44 +12,44 @@
 #define SER 0		// input
 #define RCLCK 1		// moves data to storage on positive edge
 #define SRCLCK 2    // shifts input on positive edge
-//#define SRCLR 3
+#define SRCLR 3
 
 #define LOW 0
 #define HIGH 1
 #define numBits 8
 
-unsigned char SRout ;
+void digitalWrite(unsigned char pin, unsigned char high_or_low) {
+	if (high_or_low) {
+		OUTPORT |= (1<<pin);
+	}
+	else {
+		OUTPORT &= ~(1<<pin);
+	}
+}
 
-//void clearSR() {
-//SRout  = SetBit(SRout , SRCLR, LOW); // set low to clear
-//OUTPORT = SRout ;
-////delay_ms(2);
-//SRout  = SetBit(SRout , SRCLR, HIGH); // set back to high
-//OUTPORT = SRout ;
-//}
+void clearSR() {
+	digitalWrite(SRCLR, LOW);
+	delay_ms(2);
+	digitalWrite(SRCLR, HIGH);
+}
 
 void shiftBitIn(const unsigned char bit) {
-	SRout  = SetBit(SRout , SER, bit);			// write bit to latch
-	SRout  = SetBit(SRout , SRCLCK, HIGH);		// change state to high to save previous input
-	OUTPORT = SRout ;
-	SRout  = SetBit(SRout , SRCLCK, LOW);		// change back to low
-	OUTPORT = SRout ;
+	digitalWrite(SER, bit);							// write bit to latch
+	digitalWrite(SRCLCK, HIGH);						// change to high to save previous input
+	digitalWrite(SRCLCK, LOW);
 }
 
 void shiftToOutput() {
-	SRout  = SetBit(SRout , RCLCK, HIGH);		// change high to output all registers
-	OUTPORT = SRout ;
-	SRout  = SetBit(SRout , RCLCK, LOW);		// change back to low
-	OUTPORT = SRout ;
+	digitalWrite(RCLCK, HIGH);					// change high to output all registers
+	digitalWrite(RCLCK, LOW);
 }
 
 // shift in n bits from data
 void shiftDataIn(const unsigned char data) {
 	for (unsigned char i = 0; i <= numBits; ++i) {
 		shiftBitIn(GetBit(data,i));
-		shiftToOutput(); // shift data out
 	}
-	
+	shiftToOutput(); // shift data out
 }
 
 #endif
