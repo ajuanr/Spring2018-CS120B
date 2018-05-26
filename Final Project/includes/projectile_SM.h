@@ -30,13 +30,13 @@ State projTckFct(State state) {
 			break;
 		case SM_PROJ_MOVING:
 			if (!gameOver) {
-			if (projPos++ > playerPos%16 + 15) {
-				state = SM_PROJ_INIT;
-			}
+				if (projPos++ > playerPos%16 + 15) {
+					state = SM_PROJ_INIT;
+				}
 			}
 			else {
 				state = SM_PROJ_END;
-				state = SM_END;
+				output = 0;
 				highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
 				if (currentScore > highScore) {
 					eeprom_update_byte(&HighScoreEEPROM, currentScore);
@@ -71,8 +71,7 @@ State projTckFct(State state) {
 			}
 			break;
 	}
-	//SPI_transmit(output);
-	//SPI_transmit(0xF7);
+
 	shiftDataIn(output);
 	return state;
 }

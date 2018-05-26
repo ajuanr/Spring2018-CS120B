@@ -5,7 +5,6 @@
 
 #include "common.h"
 #include "Input_SM.h"
-//#include "playerMovement.h"
 #include "custom_chars.h"
 
 const unsigned long RENDER_PERIOD = 25;
@@ -72,27 +71,18 @@ State LCDtckFct(State state) {
 			highScore = eeprom_read_byte(&HighScoreEEPROM);
 			// set background first
 			LCD_DisplayScene(gameScene, playerPos%17, playerPos%17 + sceneWidth);
-			
-			/* KEEP THIS */			
+		
 			sprintf(str, "H: %u", highScore);
 			LCD_WriteMsg(str, 6);
 			clearStr(str, strSize);
 			sprintf(str, "S: %u", currentScore);
 			LCD_WriteMsg(str, 12);
 			clearStr(str, strSize);
-			/* END KEEP THIS */
-			
-			/****** debugging stuff ****/
-			//LCD_Cursor(6);
-			//LCD_WriteData(playerPos + '0');
-			//sprintf(str, "%u", projPos);
-			//LCD_WriteMsg(str, 8);
-			//clearStr(str, strSize);
-			//LCD_Cursor(14);
-			//LCD_WriteData(gameScene[LCD_pos + 1] + '0');
-			/******* end debugging ***/
-			LCD_Cursor(projPos+17);
-			LCD_WriteData(0xA5);
+
+			if (isProjMoving) {
+				LCD_Cursor(projPos+17);
+				LCD_WriteData(0xA5);
+			}
 			// place player in scene
 			playerDisplay(playerPos, isJumping);
 			break;
@@ -102,8 +92,7 @@ State LCDtckFct(State state) {
 	return state;
 }
 
-/* HELPER FUNTIONS */
-
+/***** HELPER FUNTIONS ******/
 // display 'size' characters of message 'str'
 void LCD_DisplayScene(ConstByte* data, ConstByte start, ConstByte size) {
 	ConstByte CursorStart = 17;				// want to write to second row of LCD

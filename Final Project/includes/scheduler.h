@@ -1,5 +1,5 @@
-#ifndef scheduler_h
-#define scheduler_h
+#ifndef _scheduler_h_
+#define _scheduler_h_
 
 #include "common.h"
 
@@ -23,16 +23,6 @@ void timerISRSetup(Task *t, Byte size, unsigned long p) {
 	period = p;
 }
 
-void timerISR() {
-	for (Byte i = 0; i != tasksSize; ++i) {
-		if (tasks[i].elapsedTime > tasks[i].period) {
-			tasks[i].state = tasks[i].tckFct(tasks[i].state);
-			tasks[i].elapsedTime = 0;
-		}
-		else {
-			tasks[i].elapsedTime += period;
-		}
-	}
-}
+
 
 #endif

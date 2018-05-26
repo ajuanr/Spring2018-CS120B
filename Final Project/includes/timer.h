@@ -1,3 +1,6 @@
+#ifndef _timer_h
+#define _timer_h
+
 #include <avr/interrupt.h>
 #include "scheduler.h"
 
@@ -34,6 +37,20 @@ void timerOff() {
 	//timerFlag = 1;
 //}
 
+
+// uses Task struct define in scheduler.h
+void timerISR() {
+	for (Byte i = 0; i != tasksSize; ++i) {
+		if (tasks[i].elapsedTime > tasks[i].period) {
+			tasks[i].state = tasks[i].tckFct(tasks[i].state);
+			tasks[i].elapsedTime = 0;
+		}
+		else {
+			tasks[i].elapsedTime += period;
+		}
+	}
+}
+
 ISR(TIMER1_COMPA_vect) {
 	// CPU automatically calls TCNT1 == OCR1 (every 1 ms per timerOn() settings
 	avrTimer_currCnt--;
@@ -48,3 +65,5 @@ void timerSet(unsigned long M) {
 	avrTimerM = M;
 	avrTimer_currCnt = avrTimerM;
 }
+
+#endif

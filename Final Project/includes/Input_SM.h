@@ -66,7 +66,7 @@ State joystickTckFct(State state) {
  * the resets are handled in another state machine
  */
 
-ConstByte buttonPeriod = 50;
+ConstByte buttonPeriod = 25;
 
 enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_RELEASE};
 
