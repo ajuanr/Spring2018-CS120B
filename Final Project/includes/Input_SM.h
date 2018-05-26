@@ -68,9 +68,10 @@ State joystickTckFct(State state) {
 
 ConstByte buttonPeriod = 25;
 
-enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_RELEASE};
+enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_RESET, SM_BUTTON_RELEASE};
 
 State buttonTckFct(State state) {
+	static Byte ticks;
 	switch (state) {					// begin transitions
 		case SM_BUTTON_START:
 			state = SM_BUTTON_INIT;
@@ -78,26 +79,35 @@ State buttonTckFct(State state) {
 		case SM_BUTTON_INIT:			// initialize with player grounded and ready to attack
 			state = SM_BUTTON_WAIT;
 			gameReset = false;
-		break;
-		case SM_BUTTON_WAIT:
-			if (jump || reset) {
+			break;
+		case SM_BUTTON_WAIT:			
+			if (jump && !reset) {
+				isJumping = true;
 				state = SM_BUTTON_RELEASE;
-				if (jump && !reset) {
-					isJumping = true;
-				}
-				if (reset) {
-					gameOver = false;
-					gameReset = true;
-				}
+			}
+			if (reset) {
+				state = SM_BUTTON_RESET;
+				gameOver = false;
+				gameReset = true;
+			}
+			break;
+		case SM_BUTTON_RESET:
+			if (ticks > 300) {
+				state = SM_BUTTON_RELEASE;
+				gameReset = false;
+			}
+			else {
+				ticks += buttonPeriod;
 			}
 			break;
 		case SM_BUTTON_RELEASE:
-		if (!jump && !reset) {
-			state = SM_BUTTON_WAIT;
-		}
-		break;
+			if (!jump && !reset) {
+				state = SM_BUTTON_WAIT;
+			}
+			break;
 		default:
-		state = SM_BUTTON_START;
+			state = SM_BUTTON_START;
+			break;
 	}									// end transitions
 	return state;
 }

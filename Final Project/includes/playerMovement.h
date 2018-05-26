@@ -41,6 +41,9 @@ State posTckFct(State state) {
 						isPlayerMoving = true;
 						state = SM_LEFT;
 					}
+					else {
+						isPlayerMoving = false;
+					}
 				}
 			}
 			else {state = SM_END;}

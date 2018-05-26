@@ -26,33 +26,37 @@ State LCDtckFct(State state) {
 			state = SM_LCD_INIT;
 			break;
 		case SM_LCD_INIT:
-				state = SM_LCD_RENDER;
+			state = SM_LCD_RENDER;
 			break;
 		case SM_LCD_RENDER:
-		if (gameOver) {
-			state = SM_LCD_GAME_OVER;
-			sprintf(str, "Game Over");
-			LCD_WriteMsg(str, 1);
-			clearStr(str, strSize);
-		}
-		else 
-			state = SM_LCD_WAIT;
+			if (gameOver) {
+				state = SM_LCD_GAME_OVER;
+				sprintf(str, "Game Over");
+				LCD_WriteMsg(str, 1);
+				clearStr(str, strSize);
+			}
+			else
+				state = SM_LCD_WAIT;
 			break;
 		case SM_LCD_WAIT:
+		if (!gameOver) {
 			// only update screen is player is not static
-		if (isPlayerMoving || oldJumpState != isJumping || isProjMoving) {
-					if (oldJumpState != isJumping) {
-						oldJumpState = isJumping;
-					}
-					state = SM_LCD_INIT;
+			if (isPlayerMoving || oldJumpState != isJumping || isProjMoving) {
+				if (oldJumpState != isJumping) {
+					oldJumpState = isJumping;
 				}
-				break;
+				state = SM_LCD_INIT;
+			}
+		}
+		else {
+			state = SM_LCD_GAME_OVER;
+		}
+			break;
 		case SM_LCD_GAME_OVER:
 			if (gameReset) {
 				state = SM_LCD_INIT;
 				LCD_ClearScreen();
-			}
-				
+			}		
 			break;
 		default:
 			state = SM_LCD_INIT;
@@ -68,26 +72,25 @@ State LCDtckFct(State state) {
 			}
 			break;
 		case SM_LCD_RENDER:
-			highScore = eeprom_read_byte(&HighScoreEEPROM);
-			// set background first
-			LCD_DisplayScene(gameScene, playerPos%17, playerPos%17 + sceneWidth);
+				highScore = eeprom_read_byte(&HighScoreEEPROM);
+				// set background first
+				LCD_DisplayScene(gameScene, playerPos%17, playerPos%17 + sceneWidth);
 		
-			sprintf(str, "H: %u", highScore);
-			LCD_WriteMsg(str, 6);
-			clearStr(str, strSize);
-			sprintf(str, "S: %u", currentScore);
-			LCD_WriteMsg(str, 12);
-			clearStr(str, strSize);
+				sprintf(str, "H: %u", highScore);
+				LCD_WriteMsg(str, 6);
+				clearStr(str, strSize);
+				sprintf(str, "S: %u", currentScore);
+				LCD_WriteMsg(str, 12);
+				clearStr(str, strSize);
 
-			if (isProjMoving) {
-				LCD_Cursor(projPos+17);
-				LCD_WriteData(0xA5);
-			}
-			// place player in scene
-			playerDisplay(playerPos, isJumping);
+				if (isProjMoving) {
+					LCD_Cursor(projPos+17);
+					LCD_WriteData(0xA5);
+				}
+				// place player in scene
+				playerDisplay(playerPos, isJumping);
 			break;
-		case SM_LCD_GAME_OVER:
-			break;
+		case SM_LCD_GAME_OVER: break;
 	}									// end actions
 	return state;
 }
