@@ -6,9 +6,9 @@
 #include "shiftRegister.h"
 #include "globalData.h"
 
-const unsigned long PROJ_PERIOD = 150;
+const unsigned long PROJ_PERIOD = 100;
 
-enum PROJECTILE {SM_PROJ_START, SM_PROJ_INIT, SM_PROJ_WAITFIRE, SM_PROJ_MOVING};
+enum PROJECTILE {SM_PROJ_START, SM_PROJ_INIT, SM_PROJ_WAITFIRE, SM_PROJ_MOVING, SM_PROJ_END};
 
 State projTckFct(State state) {
 	static Byte i;
@@ -21,7 +21,7 @@ State projTckFct(State state) {
 			state = SM_PROJ_WAITFIRE;
 			break;
 		case SM_PROJ_WAITFIRE:
-			if (i >= 8) {
+			if (i++ >= 16) {
 				state = SM_PROJ_MOVING;
 				isProjMoving = true;
 				projPos = 0;
@@ -29,8 +29,23 @@ State projTckFct(State state) {
 			}
 			break;
 		case SM_PROJ_MOVING:
+			if (!gameOver) {
 			if (projPos++ > playerPos%16 + 15) {
 				state = SM_PROJ_INIT;
+			}
+			}
+			else {
+				state = SM_PROJ_END;
+				state = SM_END;
+				highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
+				if (currentScore > highScore) {
+					eeprom_update_byte(&HighScoreEEPROM, currentScore);
+				}
+			}
+			break;
+		case SM_PROJ_END:
+			if (gameReset) {
+				state = SM_PROJ_START;
 			}
 			break;
 		default:
@@ -46,11 +61,18 @@ State projTckFct(State state) {
 			isProjMoving = false;
 			break;
 		case SM_PROJ_WAITFIRE:
-			output >>= 1;
-			++i;
+			if (i % 2 == 1) {
+				output >>= 1;
+			}
 			break;
-		case SM_PROJ_MOVING: break;
+		case SM_PROJ_MOVING:
+			if (projPos == 3 && !isJumping) {
+				gameOver = true;
+			}
+			break;
 	}
+	//SPI_transmit(output);
+	//SPI_transmit(0xF7);
 	shiftDataIn(output);
 	return state;
 }

@@ -27,33 +27,73 @@ State posTckFct(State state) {
 			isPlayerMoving = false;
 		break;
 		case SM_POS_WAIT:
-			if (moveDirection == MOVE_RIGHT) {
-				isPlayerMoving = true;
-				state = SM_RIGHT;
+			if (!gameOver) {
+				if (moveDirection == MOVE_RIGHT) {
+					isPlayerMoving = true;
+					++playerPos;
+					++LCD_pos;
+					state = SM_RIGHT;
+				}
+				else if (moveDirection == MOVE_LEFT) {
+					if (playerPos > 0) {
+						--playerPos;
+						--LCD_pos;
+						isPlayerMoving = true;
+						state = SM_LEFT;
+					}
+				}
 			}
-			else if (moveDirection == MOVE_LEFT) {
-				isPlayerMoving = true;
-				state = SM_LEFT;
-			}
+			else {state = SM_END;}
 			break;
 		case SM_RIGHT:
-			if (moveDirection == MOVE_STOP) {
-				isPlayerMoving = false;
-				state = SM_POS_WAIT;
+			if (!gameOver) {
+				if (moveDirection == MOVE_STOP) {
+					isPlayerMoving = false;
+					state = SM_POS_WAIT;
+				}
+				else if (moveDirection == MOVE_LEFT) {
+					if (playerPos > 0) {
+						--playerPos;
+						--LCD_pos;
+						isPlayerMoving = true;
+						state = SM_LEFT;
+					}
+					
+				}
+				else {
+					++playerPos;
+					++LCD_pos;
+				}
 			}
-			else if (moveDirection == MOVE_LEFT) {
-				isPlayerMoving = true;
-				state = SM_LEFT;
+			else { 
+				state = SM_END;
 			}
 			break;
 		case SM_LEFT:
-			if (moveDirection == MOVE_STOP) {
-				isPlayerMoving = false;
-				state = SM_POS_WAIT;
+			if (!gameOver) {
+				if (moveDirection == MOVE_STOP) {
+					isPlayerMoving = false;
+					state = SM_POS_WAIT;
+				}
+				else if (moveDirection == MOVE_RIGHT) {
+					++playerPos;
+					++LCD_pos;
+					isPlayerMoving = true;
+					state = SM_RIGHT;
+				}
+				else {						// handle player trying to move left at beginning of level
+					if (playerPos > 0) {
+					--playerPos;
+					--LCD_pos;
+					}
+					else {
+						isPlayerMoving = false;
+						state = SM_POS_WAIT;
+					}
+				}
 			}
-			else if (moveDirection == MOVE_RIGHT) {
-				isPlayerMoving = true;
-				state = SM_RIGHT;
+			else {
+				state = SM_END;
 			}
 			break;
 		case SM_END:
@@ -69,12 +109,9 @@ State posTckFct(State state) {
 		case SM_POS_START: break;
 		case SM_POS_INIT: break;
 		case SM_POS_WAIT: break;
-		case SM_RIGHT:
-			++playerPos;
-			++LCD_pos;
-			if (gameScene[LCD_pos + 1] == CACTUS && !isJumping) {
+		case SM_RIGHT:			
+			if (gameScene[LCD_pos] == CACTUS && !isJumping) {
 				gameOver = true;
-				state = SM_END;
 				highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
 				if (currentScore > highScore) {
 					eeprom_update_byte(&HighScoreEEPROM, currentScore);
@@ -85,9 +122,6 @@ State posTckFct(State state) {
 			}
 			break;
 		case SM_LEFT:
-			if (playerPos > 0) {
-				--playerPos;
-				--LCD_pos;
 				if (gameScene[LCD_pos - 1] == CACTUS && !isJumping) {
 					gameOver = true;
 					highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
@@ -96,7 +130,6 @@ State posTckFct(State state) {
 					}
 					state = SM_END;
 				}
-			}
 			break;
 		case SM_END:
 			break;
@@ -109,7 +142,7 @@ const unsigned short JUMP_PERIOD = 50;
 enum LCD_JUMP_STATES {SM_JUMP_START, SM_JUMP_INIT, SM_JUMP_ON_GROUND, SM_JUMP_IN_AIR};
 
 State jumpTckFct(State state) {
-	Byte numTicks = 1000 / JUMP_PERIOD;
+	Byte numTicks = 250 / JUMP_PERIOD;
 	static Byte ticks;
 	switch (state) {
 		case SM_JUMP_START:
@@ -126,7 +159,7 @@ State jumpTckFct(State state) {
 			}
 			break;
 		case SM_JUMP_IN_AIR:
-				if (ticks++ > numTicks) {
+				if (ticks++ >= numTicks) {
 					state = SM_JUMP_ON_GROUND;
 					isJumping = false;
 				}

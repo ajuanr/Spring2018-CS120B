@@ -3,11 +3,6 @@
 
 #include "bit.h"
 
-/* NOTES 
- * H is least significant bit (Pin 8)
- * A is most significant bit (Pin 15)
- */
-
 #define OUTPORT PORTB
 #define SER 0		// input
 #define RCLCK 1		// moves data to storage on positive edge
