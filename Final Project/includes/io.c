@@ -2,7 +2,6 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
 #include "io.h"
-#include "shiftRegister.h"
 
 #define SET_BIT(p,i) ((p) |= (1 << (i)))
 #define CLR_BIT(p,i) ((p) &= ~(1 << (i)))
@@ -10,10 +9,10 @@
           
 /*-------------------------------------------------------------------------*/
 
-#define DATA_BUS PORTC		// port connected to pins 7-14 of LCD display
+#define DATA_BUS	PORTC	// port connected to pins 7-14 of LCD display
 #define CONTROL_BUS PORTA	// port connected to pins 4 and 6 of LCD disp.
-#define RS 7			// pin number of uC connected to pin 4 of LCD disp.
-#define E 6			// pin number of uC connected to pin 6 of LCD disp.
+#define RS			7		// pin number of uC connected to pin 4 of LCD disp.
+#define E			6		// pin number of uC connected to pin 6 of LCD disp.
 
 /*-------------------------------------------------------------------------*/
 
@@ -21,10 +20,9 @@ void LCD_ClearScreen(void) {
    LCD_WriteCommand(0x01);
 }
 
-void LCD_Write8(unsigned char);
+void LCD_Write8(unsigned char);		// forward declaration
 
 void LCD_init(void) {
-
     //wait for 100 ms.
 	delay_ms(100);
 	
@@ -47,11 +45,10 @@ void LCD_init(void) {
 	delay_ms(10);						 
 }
 
-// uses this before setting 4-bit mode or if using 8-bit mode
+// use this before setting 4-bit mode or if using 8-bit mode
 void LCD_Write8(unsigned char Command) {
 	CLR_BIT(CONTROL_BUS,RS);
 	DATA_BUS = Command;
-	//shiftDataIn(Command, numBits);
 	SET_BIT(CONTROL_BUS,E);
 	asm("nop");
 	CLR_BIT(CONTROL_BUS,E);
@@ -113,7 +110,6 @@ void LCD_Cursor(unsigned char column) {
 }
 
 void delay_ms(int miliSec) //for 8 Mhz crystal
-
 {
     int i,j;
     for(i=0;i<miliSec;i++)

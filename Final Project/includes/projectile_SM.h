@@ -11,26 +11,30 @@ const unsigned long PROJ_PERIOD = 100;
 enum PROJECTILE {SM_PROJ_START, SM_PROJ_INIT, SM_PROJ_WAITFIRE, SM_PROJ_MOVING, SM_PROJ_END};
 
 State projTckFct(State state) {
-	static Byte i;
+	static Byte i;			// used for the countdown LEDs
 	static Byte output;
 	switch (state) {		// transitions
 		case SM_PROJ_START:
 			state = SM_PROJ_INIT;
 			break;
 		case SM_PROJ_INIT:
-			state = SM_PROJ_WAITFIRE;
+			if (!gameOver && !gameReset) {
+				state = SM_PROJ_WAITFIRE;
+			}
 			break;
 		case SM_PROJ_WAITFIRE:
-			if (i++ >= 16) {
-				state = SM_PROJ_MOVING;
-				isProjMoving = true;
-				projPos = 0;
-				i = 0;
+			if (!gameOver && !gameReset) {
+				if (i++ >= 16) {
+					state = SM_PROJ_MOVING;
+					isProjMoving = true;
+					projPos = 0;
+					i = 0;
+				}
 			}
 			break;
 		case SM_PROJ_MOVING:
-			if (!gameOver) {
-				if (projPos++ > playerPos%16 + 15) {
+			if (!gameOver && !gameReset) {
+				if (projPos > playerPos%16 + 14) {
 					state = SM_PROJ_INIT;
 				}
 			}
@@ -69,6 +73,7 @@ State projTckFct(State state) {
 			if (projPos == 3 && !isJumping) {
 				gameOver = true;
 			}
+			++projPos;
 			break;
 	}
 

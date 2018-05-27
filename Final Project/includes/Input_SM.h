@@ -61,12 +61,9 @@ State joystickTckFct(State state) {
 }
 
 /* State machine to make player jump or attack
- * isJumping and attackState are a global variables that will be used to update the player/attack position on the display
- * they are reset back to default values after player either lands, or is ready to attack again
- * the resets are handled in another state machine
  */
 
-ConstByte buttonPeriod = 25;
+ConstByte buttonPeriod = 50;
 
 enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_RESET, SM_BUTTON_RELEASE};
 
@@ -92,7 +89,7 @@ State buttonTckFct(State state) {
 			}
 			break;
 		case SM_BUTTON_RESET:
-			if (ticks > 300) {
+			if (ticks >= 200) {
 				state = SM_BUTTON_RELEASE;
 				gameReset = false;
 			}
@@ -103,6 +100,7 @@ State buttonTckFct(State state) {
 		case SM_BUTTON_RELEASE:
 			if (!jump && !reset) {
 				state = SM_BUTTON_WAIT;
+				
 			}
 			break;
 		default:

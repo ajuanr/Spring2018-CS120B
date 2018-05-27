@@ -3,11 +3,10 @@
 
 #include "bit.h"
 
-#define OUTPORT PORTB
-#define SER 0		// input
-#define RCLCK 1		// moves data to storage on positive edge
-#define SRCLCK 2    // shifts input on positive edge
-#define SRCLR 3
+#define OUTPORT PORTD
+#define SER 6		// input
+#define RCLCK 5		// moves data to storage on positive edge
+#define SRCLCK 4    // shifts input on positive edge
 
 #define LOW 0
 #define HIGH 1
@@ -20,12 +19,6 @@ void digitalWrite(unsigned char pin, unsigned char high_or_low) {
 	else {
 		OUTPORT &= ~(1<<pin);
 	}
-}
-
-void clearSR() {
-	digitalWrite(SRCLR, LOW);
-	delay_ms(2);
-	digitalWrite(SRCLR, HIGH);
 }
 
 void shiftBitIn(const unsigned char bit) {

@@ -11,7 +11,7 @@
 
 const unsigned short POS_PERIOD = 150;
 
-enum POS_STATES {SM_POS_START, SM_POS_INIT, SM_POS_WAIT, SM_RIGHT, SM_LEFT, SM_END};
+enum POS_STATES {SM_POS_START, SM_POS_INIT, SM_POS_WAIT, SM_RIGHT, SM_LEFT, SM_POS_END, SM_POS_RESET};
 
 State posTckFct(State state) {
 	ConstByte column = 3;
@@ -20,11 +20,13 @@ State posTckFct(State state) {
 			state = SM_POS_INIT;
 			break;
 		case SM_POS_INIT:
-			state = SM_POS_WAIT;
-			playerPos = 0;
-			LCD_pos = playerPos + column;
-			currentScore = 0;
-			isPlayerMoving = false;
+			if (!gameOver && !gameReset) {
+				state = SM_POS_WAIT;
+				playerPos = 0;
+				LCD_pos = playerPos + column;
+				currentScore = 0;
+				isPlayerMoving = false;
+			}
 		break;
 		case SM_POS_WAIT:
 			if (!gameOver) {
@@ -46,7 +48,9 @@ State posTckFct(State state) {
 					}
 				}
 			}
-			else {state = SM_END;}
+			else {
+				state = SM_POS_END;
+				}
 			break;
 		case SM_RIGHT:
 			if (!gameOver) {
@@ -69,7 +73,7 @@ State posTckFct(State state) {
 				}
 			}
 			else { 
-				state = SM_END;
+				state = SM_POS_END;
 			}
 			break;
 		case SM_LEFT:
@@ -96,13 +100,17 @@ State posTckFct(State state) {
 				}
 			}
 			else {
-				state = SM_END;
+				state = SM_POS_END;
 			}
 			break;
-		case SM_END:
+		case SM_POS_END:
+			state = SM_POS_RESET;
+			break;
+		case SM_POS_RESET:
 			if (gameReset) {
 				state = SM_POS_START;
 			}
+			break;
 		default:
 			state = SM_POS_START;
 			break;
@@ -125,18 +133,18 @@ State posTckFct(State state) {
 			}
 			break;
 		case SM_LEFT:
-				if (gameScene[LCD_pos - 1] == CACTUS && !isJumping) {
+				if (gameScene[LCD_pos] == CACTUS && !isJumping) {
 					gameOver = true;
 					highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
 					if (currentScore > highScore) {
 						eeprom_update_byte(&HighScoreEEPROM, currentScore);
 					}
-					state = SM_END;
 				}
 			break;
-		case SM_END:
-			break;
+		case SM_POS_END:	break;
+		case SM_POS_RESET:	break;
 	}											// end actions
+	
 	return state;
 }
 

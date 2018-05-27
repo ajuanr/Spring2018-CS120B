@@ -15,9 +15,9 @@ void playerDisplay(ConstByte pos, enum bool isJumping);
 void LCD_WriteMsg(Byte *str, Byte cursorStart);
 void clearStr(Byte *, Byte);
 
-enum LCD_DRIVER_STATES {SM_LCD_START, SM_LCD_INIT, SM_LCD_RENDER, SM_LCD_WAIT, SM_LCD_GAME_OVER};
+enum LCD_DRIVER_STATES {SM_LCD_START, SM_LCD_INIT, SM_LCD_RENDER, SM_LCD_WAIT, SM_LCD_GAME_OVER, SM_LCD_RESET};
 						
-State LCDtckFct(State state) {
+State LCDtckFct(State state) {					// start transitions
 	ConstByte strSize = 10;
 	Byte str[10];
 	static Byte oldJumpState;
@@ -26,40 +26,50 @@ State LCDtckFct(State state) {
 			state = SM_LCD_INIT;
 			break;
 		case SM_LCD_INIT:
+		if (!gameOver && !gameReset) {
 			state = SM_LCD_RENDER;
+			LCD_ClearScreen();
+		}
 			break;
 		case SM_LCD_RENDER:
-			if (gameOver) {
+			if (!gameOver) {
+				state = SM_LCD_WAIT;
+			}
+			else {								// game ended
 				state = SM_LCD_GAME_OVER;
 				sprintf(str, "Game Over");
 				LCD_WriteMsg(str, 1);
 				clearStr(str, strSize);
 			}
-			else
-				state = SM_LCD_WAIT;
 			break;
 		case SM_LCD_WAIT:
-		if (!gameOver) {
-			// only update screen is player is not static
-			if (isPlayerMoving || oldJumpState != isJumping || isProjMoving) {
-				if (oldJumpState != isJumping) {
-					oldJumpState = isJumping;
+			if (!gameOver) {
+				// only update screen is player is not static
+				if (isPlayerMoving || oldJumpState != isJumping || isProjMoving) {
+					if (oldJumpState != isJumping) {
+						oldJumpState = isJumping;
+					}
+					state = SM_LCD_RENDER;
 				}
-				state = SM_LCD_INIT;
 			}
-		}
-		else {
-			state = SM_LCD_GAME_OVER;
-		}
+			else {
+				state = SM_LCD_GAME_OVER;
+				sprintf(str, "Game Over");
+				LCD_WriteMsg(str, 1);
+				clearStr(str, strSize);
+			}
 			break;
 		case SM_LCD_GAME_OVER:
+			state = SM_LCD_RESET;
+			break;
+		case SM_LCD_RESET:
 			if (gameReset) {
-				state = SM_LCD_INIT;
-				LCD_ClearScreen();
+				state = SM_LCD_START;
+				LCD_DisplayString(1, "Resetting game");
 			}		
 			break;
 		default:
-			state = SM_LCD_INIT;
+			state = SM_LCD_START;
 			break;
 	}									// end transitions
 	
@@ -85,7 +95,8 @@ State LCDtckFct(State state) {
 
 				if (isProjMoving) {
 					LCD_Cursor(projPos+17);
-					LCD_WriteData(0xA5);
+					//LCD_WriteData(0xA5);
+					LCD_WriteData(BULLET);
 				}
 				// place player in scene
 				playerDisplay(playerPos, isJumping);
