@@ -4,8 +4,8 @@
 #include "common.h"
 #include "globalData.h"
 
-#define jump (~PINA & 0x02)
-#define reset (~PINA & 0x04)
+#define jumpButton (~PINA & 0x04)
+#define resetButton (~PINA & 0x02)
 
 // for potentiometer that the joystick uses
 void ADC_init() {
@@ -60,54 +60,54 @@ State joystickTckFct(State state) {
 	return state;
 }
 
-/* State machine to make player jump or attack
- */
+/* State machine to make player jumpButton or attack */
 
 ConstByte buttonPeriod = 50;
 
-enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_RESET, SM_BUTTON_RELEASE};
+enum BUTTON_STATES {SM_BUTTON_START, SM_BUTTON_INIT, SM_BUTTON_WAIT, SM_BUTTON_RELEASE};
 
 State buttonTckFct(State state) {
-	static Byte ticks;
 	switch (state) {					// begin transitions
 		case SM_BUTTON_START:
 			state = SM_BUTTON_INIT;
 			break;
 		case SM_BUTTON_INIT:			// initialize with player grounded and ready to attack
 			state = SM_BUTTON_WAIT;
-			gameReset = false;
+			resetGame = false;
 			break;
 		case SM_BUTTON_WAIT:			
-			if (jump && !reset) {
+			if (jumpButton && !resetButton) {
 				isJumping = true;
 				state = SM_BUTTON_RELEASE;
 			}
-			if (reset) {
-				state = SM_BUTTON_RESET;
-				gameOver = false;
-				gameReset = true;
-			}
-			break;
-		case SM_BUTTON_RESET:
-			if (ticks >= 200) {
+			else if (resetButton) {
 				state = SM_BUTTON_RELEASE;
-				gameReset = false;
-			}
-			else {
-				ticks += buttonPeriod;
+				resetGame = true;
 			}
 			break;
 		case SM_BUTTON_RELEASE:
-			if (!jump && !reset) {
+			if (!jumpButton && !resetButton) {
 				state = SM_BUTTON_WAIT;
-				
 			}
 			break;
 		default:
 			state = SM_BUTTON_START;
 			break;
 	}									// end transitions
+	
+	switch (state) {
+		case SM_BUTTON_START: break;
+		case SM_BUTTON_INIT:break; 
+		case SM_BUTTON_WAIT: break; 
+		case SM_BUTTON_RELEASE:break;
+		
+	}
 	return state;
 }
+
+
+
+
+
 
 #endif

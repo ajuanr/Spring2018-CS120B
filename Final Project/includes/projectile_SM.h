@@ -18,12 +18,15 @@ State projTckFct(State state) {
 			state = SM_PROJ_INIT;
 			break;
 		case SM_PROJ_INIT:
-			if (!gameOver && !gameReset) {
+			if (!gameOver && !resetGame) {
 				state = SM_PROJ_WAITFIRE;
 			}
 			break;
 		case SM_PROJ_WAITFIRE:
-			if (!gameOver && !gameReset) {
+			if (resetGame) {
+				state = SM_PROJ_END;
+			}
+			if (!gameOver && !resetGame) {
 				if (i++ >= 16) {
 					state = SM_PROJ_MOVING;
 					isProjMoving = true;
@@ -33,7 +36,10 @@ State projTckFct(State state) {
 			}
 			break;
 		case SM_PROJ_MOVING:
-			if (!gameOver && !gameReset) {
+			if (resetGame) {
+				state = SM_PROJ_END;
+			}
+			if (!gameOver && !resetGame) {
 				if (projPos > playerPos%16 + 14) {
 					state = SM_PROJ_INIT;
 				}
@@ -48,7 +54,7 @@ State projTckFct(State state) {
 			}
 			break;
 		case SM_PROJ_END:
-			if (gameReset) {
+			if (!resetGame && !gameOver) {
 				state = SM_PROJ_START;
 			}
 			break;

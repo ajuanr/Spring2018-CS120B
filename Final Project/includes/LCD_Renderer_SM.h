@@ -26,24 +26,17 @@ State LCDtckFct(State state) {					// start transitions
 			state = SM_LCD_INIT;
 			break;
 		case SM_LCD_INIT:
-		if (!gameOver && !gameReset) {
-			state = SM_LCD_RENDER;
-			LCD_ClearScreen();
-		}
+				state = SM_LCD_RENDER;
+				LCD_ClearScreen();
 			break;
 		case SM_LCD_RENDER:
-			if (!gameOver) {
-				state = SM_LCD_WAIT;
-			}
-			else {								// game ended
-				state = SM_LCD_GAME_OVER;
-				sprintf(str, "Game Over");
-				LCD_WriteMsg(str, 1);
-				clearStr(str, strSize);
-			}
+			state = SM_LCD_WAIT;
 			break;
 		case SM_LCD_WAIT:
-			if (!gameOver) {
+			if (resetGame) {
+				state = SM_LCD_RESET;
+			}
+			else if (!gameOver && !resetGame) {
 				// only update screen is player is not static
 				if (isPlayerMoving || oldJumpState != isJumping || isProjMoving) {
 					if (oldJumpState != isJumping) {
@@ -52,7 +45,7 @@ State LCDtckFct(State state) {					// start transitions
 					state = SM_LCD_RENDER;
 				}
 			}
-			else {
+			else if (gameOver && !resetGame) {
 				state = SM_LCD_GAME_OVER;
 				sprintf(str, "Game Over");
 				LCD_WriteMsg(str, 1);
@@ -60,10 +53,12 @@ State LCDtckFct(State state) {					// start transitions
 			}
 			break;
 		case SM_LCD_GAME_OVER:
+			if (resetGame) {
 			state = SM_LCD_RESET;
+			}
 			break;
 		case SM_LCD_RESET:
-			if (gameReset) {
+			if (!resetGame && !gameOver) {
 				state = SM_LCD_START;
 				LCD_DisplayString(1, "Resetting game");
 			}		
@@ -77,25 +72,20 @@ State LCDtckFct(State state) {					// start transitions
 		case SM_LCD_START: break;
 		case SM_LCD_INIT:
 			oldJumpState = false;
-			if ((highScore = eeprom_read_byte(&HighScoreEEPROM)) == 0xFF) {
-				eeprom_update_byte(&HighScoreEEPROM, 0x00);
-			}
 			break;
 		case SM_LCD_RENDER:
-				highScore = eeprom_read_byte(&HighScoreEEPROM);
 				// set background first
 				LCD_DisplayScene(gameScene, playerPos%17, playerPos%17 + sceneWidth);
 		
-				sprintf(str, "H: %u", highScore);
+				sprintf(str, "H:%u", highScore);
 				LCD_WriteMsg(str, 6);
 				clearStr(str, strSize);
-				sprintf(str, "S: %u", currentScore);
+				sprintf(str, "S:%u", currentScore);
 				LCD_WriteMsg(str, 12);
 				clearStr(str, strSize);
 
 				if (isProjMoving) {
 					LCD_Cursor(projPos+17);
-					//LCD_WriteData(0xA5);
 					LCD_WriteData(BULLET);
 				}
 				// place player in scene

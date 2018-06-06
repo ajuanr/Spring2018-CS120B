@@ -12,7 +12,7 @@ Byte EEMEM HighScoreEEPROM; // set in collision_sm.h
 Byte highScore;
 
 // set in inputSM.h
-enum bool gameReset;
+enum bool resetGame;
 enum bool isJumping;
 
 // set in Collision_SM.h

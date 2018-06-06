@@ -9,7 +9,7 @@
 #include "common.h"
 #include "globalData.h"
 
-const unsigned short POS_PERIOD = 150;
+ConstByte POS_PERIOD = 200;
 
 enum POS_STATES {SM_POS_START, SM_POS_INIT, SM_POS_WAIT, SM_RIGHT, SM_LEFT, SM_POS_END, SM_POS_RESET};
 
@@ -20,16 +20,20 @@ State posTckFct(State state) {
 			state = SM_POS_INIT;
 			break;
 		case SM_POS_INIT:
-			if (!gameOver && !gameReset) {
 				state = SM_POS_WAIT;
 				playerPos = 0;
 				LCD_pos = playerPos + column;
 				currentScore = 0;
-				isPlayerMoving = false;
-			}
-		break;
+				isPlayerMoving = true;
+			break;
 		case SM_POS_WAIT:
-			if (!gameOver) {
+			if (resetGame) {
+				state = SM_POS_RESET;
+			}
+			else if (gameOver && !resetGame) {
+				state = SM_POS_END;
+			}
+			else if (!gameOver && !resetGame) {
 				if (moveDirection == MOVE_RIGHT) {
 					isPlayerMoving = true;
 					++playerPos;
@@ -48,12 +52,15 @@ State posTckFct(State state) {
 					}
 				}
 			}
-			else {
-				state = SM_POS_END;
-				}
 			break;
 		case SM_RIGHT:
-			if (!gameOver) {
+			if (resetGame) {
+				state = SM_POS_RESET;
+			}
+			else if (gameOver && !resetGame) {
+				state = SM_POS_END;
+			}
+			else if (!gameOver && !resetGame) {
 				if (moveDirection == MOVE_STOP) {
 					isPlayerMoving = false;
 					state = SM_POS_WAIT;
@@ -72,12 +79,16 @@ State posTckFct(State state) {
 					++LCD_pos;
 				}
 			}
-			else { 
-				state = SM_POS_END;
-			}
+
 			break;
 		case SM_LEFT:
-			if (!gameOver) {
+			if (resetGame) {
+				state = SM_POS_RESET;
+			}
+			else if (gameOver && !resetGame) {
+				state = SM_POS_END;
+			}
+			else if (!gameOver && !resetGame) {
 				if (moveDirection == MOVE_STOP) {
 					isPlayerMoving = false;
 					state = SM_POS_WAIT;
@@ -99,15 +110,12 @@ State posTckFct(State state) {
 					}
 				}
 			}
-			else {
-				state = SM_POS_END;
-			}
 			break;
 		case SM_POS_END:
 			state = SM_POS_RESET;
 			break;
 		case SM_POS_RESET:
-			if (gameReset) {
+			if (!resetGame && !gameOver) {
 				state = SM_POS_START;
 			}
 			break;
@@ -121,12 +129,8 @@ State posTckFct(State state) {
 		case SM_POS_INIT: break;
 		case SM_POS_WAIT: break;
 		case SM_RIGHT:			
-			if (gameScene[LCD_pos] == CACTUS && !isJumping) {
+			if ((gameScene[LCD_pos] == CACTUS || gameScene[LCD_pos-1] == CACTUS) && !isJumping) {
 				gameOver = true;
-				highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
-				if (currentScore > highScore) {
-					eeprom_update_byte(&HighScoreEEPROM, currentScore);
-				}
 			}
 			else if (playerPos > currentScore) {		// update score when player moves right
 				currentScore = playerPos;
@@ -135,10 +139,6 @@ State posTckFct(State state) {
 		case SM_LEFT:
 				if (gameScene[LCD_pos] == CACTUS && !isJumping) {
 					gameOver = true;
-					highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
-					if (currentScore > highScore) {
-						eeprom_update_byte(&HighScoreEEPROM, currentScore);
-					}
 				}
 			break;
 		case SM_POS_END:	break;
@@ -148,7 +148,7 @@ State posTckFct(State state) {
 	return state;
 }
 
-const unsigned short JUMP_PERIOD = 50;
+ConstByte JUMP_PERIOD = 50;
 
 enum LCD_JUMP_STATES {SM_JUMP_START, SM_JUMP_INIT, SM_JUMP_ON_GROUND, SM_JUMP_IN_AIR};
 
@@ -178,6 +178,62 @@ State jumpTckFct(State state) {
 		default:
 			state = SM_POS_START;
 	}											// end transitions
+	return state;
+}
+
+enum PLAYGAME {SM_PLAY_START, SM_PLAY_INIT, SM_PLAY_BEGIN, SM_PLAY_RESET, SM_PLAY_END};
+
+ConstByte playPeriod = 100;
+
+/* handles start and end of the game */
+State playTckFct(State state) {
+	static Byte ticks;
+	
+	switch(state) {
+		case SM_PLAY_START:
+			state = SM_PLAY_INIT;
+			break;
+		case SM_PLAY_INIT:
+			state = SM_PLAY_BEGIN;
+			gameOver = false;
+			resetGame = false;
+			break;
+		case SM_PLAY_BEGIN:
+			if (resetGame) {
+				state = SM_PLAY_END;
+			}
+			else if (gameOver && !resetGame) {
+				state = SM_PLAY_RESET;
+			}
+			break;
+		case SM_PLAY_RESET:
+			if (resetGame) {
+				state = SM_PLAY_END;
+			}
+			break;
+		case SM_PLAY_END:
+			if (ticks++ >= 1000/playPeriod) {
+				state = SM_PLAY_INIT;
+			}
+			break;
+		default:
+			state = SM_POS_START;
+			break;
+	}											// end transitions
+	switch(state) {
+		case SM_PLAY_INIT:
+			if ((highScore = eeprom_read_byte(&HighScoreEEPROM)) == 0xFF) {
+				eeprom_update_byte(&HighScoreEEPROM, 0x00);
+			}
+			highScore = eeprom_read_byte(&HighScoreEEPROM);
+			break;
+		case SM_PLAY_END:
+			highScore = eeprom_read_byte(&HighScoreEEPROM); // get saved high score
+			if (currentScore > highScore) {
+				eeprom_update_byte(&HighScoreEEPROM, currentScore);
+			}
+			break;
+	}
 	return state;
 }
 
